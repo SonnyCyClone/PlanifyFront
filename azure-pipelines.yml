@@ -8,7 +8,7 @@ pr:
 
 # ============ VARIABLES ============
 variables:
-  azureSubscription: 'sc-azure-planify'   # <-- Ajusta si tu Service Connection tiene otro nombre
+  azureSubscription: 'sc-azure-agromarket'   # <-- Ajusta si tu Service Connection tiene otro nombre
   appName: 'Az-Planify-Front'             # Web App destino
   feRoot: '.'
   zipName: 'planify-frontend.zip'
