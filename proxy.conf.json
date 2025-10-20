@@ -1,12 +1,12 @@
 {
   "/api": {
-    "target": "https://localhost:7025",
+    "target": "https://az-planify-back.azurewebsites.net",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
   },
   "/health": {
-    "target": "https://localhost:7025",
+    "target": "https://az-planify-back.azurewebsites.net",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
