@@ -5,8 +5,6 @@ trigger:
   paths:
     exclude: [ README.md, .gitignore, azure-pipelines.yml, .gitattributes ]
 
-# (Sin sección PR: solo existe rama main)
-
 # ============ VARIABLES ============
 variables:
   azureSubscription: 'sc-azure-agromarket'  # MANTENIDO
@@ -47,7 +45,10 @@ stages:
     - powershell: |
         $ErrorActionPreference = 'Stop'
         function Remove-PropIfExists([object]$obj, [string]$propName) {
-          if ($null -ne $obj) { $prop = $obj.PSObject.Properties.Match($propName); if ($prop -and $prop.Count -gt 0) { $obj.PSObject.Properties.Remove($propName) | Out-Null } }
+          if ($null -ne $obj) {
+            $prop = $obj.PSObject.Properties.Match($propName)
+            if ($prop -and $prop.Count -gt 0) { $obj.PSObject.Properties.Remove($propName) | Out-Null }
+          }
         }
 
         $root = "$(feRoot)"
@@ -70,7 +71,11 @@ stages:
           $cfgs = $null
           if ($build.configurations) { $cfgs = $build.configurations }
           elseif ($build.options -and $build.options.configurations) { $cfgs = $build.options.configurations }
-          if ($cfgs) { foreach ($cfgProp in $cfgs.PSObject.Properties) { Remove-PropIfExists -obj $cfgProp.Value -propName 'budgets' } }
+          if ($cfgs) {
+            foreach ($cfgProp in $cfgs.PSObject.Properties) {
+              Remove-PropIfExists -obj $cfgProp.Value -propName 'budgets'
+            }
+          }
         }
 
         ($json | ConvertTo-Json -Depth 100) | Set-Content $angularPath -Encoding UTF8
@@ -92,32 +97,84 @@ stages:
         )
         echo ng build --configuration production --output-path dist --verbose
         npm run build -- --configuration production --output-path dist --verbose
+        echo ---- Árbol de dist (nivel 1) ----
+        if exist dist ( dir dist ) else ( echo dist no encontrado )
       displayName: 'npm ci & ng build'
 
-    # Empaquetar dist + web.config
+    # Empaquetar dist + web.config (robusto con feRoot y búsqueda recursiva)
     - powershell: |
-        $srcRoot  = "$(Build.SourcesDirectory)"
-        $distRoot = Join-Path $srcRoot 'dist'
-        if (-not (Test-Path $distRoot)) { throw "No existe 'dist'. ¿Falló el build?" }
+        $ErrorActionPreference = 'Stop'
 
-        # Angular 15+ suele crear dist/<app>/browser
-        $sub = Get-ChildItem -Directory $distRoot | Select-Object -First 1
-        if (-not $sub) { throw "No se encontró subcarpeta en dist." }
+        $srcRoot = "$(Build.SourcesDirectory)"
+        $feRoot  = "$(feRoot)"
+        if ([string]::IsNullOrWhiteSpace($feRoot)) { $feRoot = '.' }
 
-        $content = Join-Path $sub.FullName 'browser'
-        if (-not (Test-Path $content)) { $content = $sub.FullName }
+        $projRoot = Join-Path $srcRoot $feRoot
+        Write-Host "Proyecto (feRoot): $projRoot"
+        Write-Host "Listado rápido de $projRoot (2 niveles aprox):"
+        # Nota: -Depth no está en Windows PowerShell 5, evitamos usarlo
+        Get-ChildItem -Path $projRoot -Recurse -ErrorAction SilentlyContinue | Select-Object -First 200 | ForEach-Object { $_.FullName } | Out-String | Write-Host
 
+        # 1) Ruta esperada por defecto: <feRoot>/dist
+        $distRoot = Join-Path $projRoot 'dist'
+        $resolved = $false
+
+        if (Test-Path $distRoot) {
+          Write-Host "Encontrado dist en: $distRoot"
+          # Angular 15+ puede crear dist/<app>/browser
+          $firstSub = Get-ChildItem -Directory $distRoot | Select-Object -First 1
+          if ($firstSub) {
+            $browser = Join-Path $firstSub.FullName 'browser'
+            if (Test-Path $browser) {
+              $distRoot = $browser
+              Write-Host "Usando subcarpeta browser: $distRoot"
+            } else {
+              $distRoot = $firstSub.FullName
+              Write-Host "Usando subcarpeta: $distRoot"
+            }
+          }
+          $resolved = $true
+        }
+
+        if (-not $resolved) {
+          Write-Warning "No se encontró dist en $distRoot. Intentando detectar automáticamente..."
+
+          # 2) Buscar recursivamente un directorio que contenga un index.html (o browser/index.html)
+          $candidate = Get-ChildItem -Path $projRoot -Recurse -Directory -ErrorAction SilentlyContinue `
+            | Where-Object {
+                (Test-Path (Join-Path $_.FullName 'index.html')) -or
+                (Test-Path (Join-Path $_.FullName 'browser\index.html'))
+              } `
+            | Sort-Object FullName -Descending `
+            | Select-Object -First 1
+
+          if ($null -eq $candidate) {
+            throw "No se pudo localizar la carpeta de salida de Angular (dist). Revisa el outputPath del build."
+          }
+
+          $browserPath = Join-Path $candidate.FullName 'browser'
+          if (Test-Path $browserPath) {
+            $distRoot = $browserPath
+            Write-Host "Detectado dist (browser) en: $distRoot"
+          } else {
+            $distRoot = $candidate.FullName
+            Write-Host "Detectado dist en: $distRoot"
+          }
+        }
+
+        # 3) Copiar web.config desde la raíz del repo (como indicaste)
         $webConfig = Join-Path $srcRoot 'web.config'
-        if (-not (Test-Path $webConfig)) { throw "Falta web.config en la raíz del repo." }
-        Copy-Item -Force $webConfig (Join-Path $content 'web.config')
+        if (-not (Test-Path $webConfig)) { throw "Falta web.config en la raíz del repo ($srcRoot)." }
+        Copy-Item -Force $webConfig (Join-Path $distRoot 'web.config')
 
+        # 4) Comprimir a ZIP de salida
         $outDir  = "$(Build.ArtifactStagingDirectory)"
         New-Item -ItemType Directory -Force -Path $outDir | Out-Null
         $zipPath = Join-Path $outDir "$(zipName)"
         if (Test-Path $zipPath) { Remove-Item -Force $zipPath }
 
-        Write-Host "Creando ZIP: $zipPath"
-        Compress-Archive -Path (Join-Path $content '*') -DestinationPath $zipPath -Force
+        Write-Host "Creando ZIP: $zipPath desde $distRoot"
+        Compress-Archive -Path (Join-Path $distRoot '*') -DestinationPath $zipPath -Force
       displayName: 'Crear ZIP para despliegue'
 
     # Deploy directo a la Web App Planify (solo desde main)
