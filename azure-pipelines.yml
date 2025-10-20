@@ -1,32 +1,36 @@
-# ============ TRIGGERS ============
+# ============ TRIGGER ÚNICO ============
 trigger:
   branches:
-    include: [ main ]   # Despliega solo cuando haces push a main
-pr:
-  branches:
-    include: [ '*' ]    # Valida PRs de cualquier rama (sin desplegar)
+    include: [ main ]
+  paths:
+    exclude: [ README.md, .gitignore, azure-pipelines.yml, .gitattributes ]
+
+# (Sin sección PR: solo existe rama main)
 
 # ============ VARIABLES ============
 variables:
-  azureSubscription: 'sc-azure-agromarket'   # <-- Ajusta si tu Service Connection tiene otro nombre
-  appName: 'Az-Planify-Front'             # Web App destino
+  azureSubscription: 'sc-azure-agromarket'  # MANTENIDO
+  appName: 'Az-Planify-Front'               # Destino Planify
   feRoot: '.'
   zipName: 'planify-frontend.zip'
 
-# ============ AGENTE ============
+# ============ AGENTE (self-hosted, MANTENIDO) ============
 pool:
-  vmImage: 'windows-latest'               # Usa agente hospedado de Microsoft (simple y sin dependencias)
+  name: Default
+  demands:
+    - agent.name -equals agromarket-agent-win
 
 # ============ STAGE ÚNICO ============
 stages:
-- stage: Build_Deploy
-  displayName: Build & Deploy Planify
+- stage: Build_And_Deploy
+  displayName: Build & Deploy Planify (main)
   jobs:
-  - job: build_and_deploy
+  - job: job_build_deploy
     displayName: Build & Deploy
     steps:
     - checkout: self
       clean: true
+      fetchDepth: 0
 
     - task: NodeTool@0
       displayName: 'Use Node 20.x'
@@ -43,10 +47,7 @@ stages:
     - powershell: |
         $ErrorActionPreference = 'Stop'
         function Remove-PropIfExists([object]$obj, [string]$propName) {
-          if ($null -ne $obj) {
-            $prop = $obj.PSObject.Properties.Match($propName)
-            if ($prop -and $prop.Count -gt 0) { $obj.PSObject.Properties.Remove($propName) | Out-Null }
-          }
+          if ($null -ne $obj) { $prop = $obj.PSObject.Properties.Match($propName); if ($prop -and $prop.Count -gt 0) { $obj.PSObject.Properties.Remove($propName) | Out-Null } }
         }
 
         $root = "$(feRoot)"
@@ -63,20 +64,13 @@ stages:
           $build = $null
           if ($proj.targets -and $proj.targets.build) { $build = $proj.targets.build }
           elseif ($proj.architect -and $proj.architect.build) { $build = $proj.architect.build }
-
           if ($null -eq $build) { continue }
-          Remove-PropIfExists -obj $build -propName 'budgets'
 
+          Remove-PropIfExists -obj $build -propName 'budgets'
           $cfgs = $null
           if ($build.configurations) { $cfgs = $build.configurations }
           elseif ($build.options -and $build.options.configurations) { $cfgs = $build.options.configurations }
-
-          if ($cfgs) {
-            foreach ($cfgProp in $cfgs.PSObject.Properties) {
-              $cfg = $cfgProp.Value
-              Remove-PropIfExists -obj $cfg -propName 'budgets'
-            }
-          }
+          if ($cfgs) { foreach ($cfgProp in $cfgs.PSObject.Properties) { Remove-PropIfExists -obj $cfgProp.Value -propName 'budgets' } }
         }
 
         ($json | ConvertTo-Json -Depth 100) | Set-Content $angularPath -Encoding UTF8
@@ -87,6 +81,8 @@ stages:
     - script: |
         cd $(feRoot)
         if not exist package-lock.json ( echo FALTA package-lock.json && exit /b 1 )
+        npm config set fund false --global
+        npm config set audit false --global
         echo npm ci
         npm ci
         if %ERRORLEVEL% NEQ 0 (
@@ -104,7 +100,7 @@ stages:
         $distRoot = Join-Path $srcRoot 'dist'
         if (-not (Test-Path $distRoot)) { throw "No existe 'dist'. ¿Falló el build?" }
 
-        # Detectar carpeta final (Angular 15+ suele crear dist/<app>/browser)
+        # Angular 15+ suele crear dist/<app>/browser
         $sub = Get-ChildItem -Directory $distRoot | Select-Object -First 1
         if (-not $sub) { throw "No se encontró subcarpeta en dist." }
 
@@ -124,11 +120,11 @@ stages:
         Compress-Archive -Path (Join-Path $content '*') -DestinationPath $zipPath -Force
       displayName: 'Crear ZIP para despliegue'
 
-    # Deploy directo a la Web App (sin environments intermedios)
+    # Deploy directo a la Web App Planify (solo desde main)
     - task: AzureWebApp@1
       displayName: 'Deploy a $(appName)'
       inputs:
-        azureSubscription: '$(azureSubscription)'
+        azureSubscription: '$(azureSubscription)'  # MANTENIDO
         appType: 'webApp'
         appName: '$(appName)'
         package: '$(Build.ArtifactStagingDirectory)/$(zipName)'
