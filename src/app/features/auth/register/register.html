@@ -1,0 +1,268 @@
+<div class="auth-background">
+  <div class="animated-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <!-- Theme and Language Controls -->
+  <div class="auth-controls">
+    <button
+      type="button"
+      class="control-btn"
+      (click)="themeService.toggleTheme()"
+      [pTooltip]="themeService.isDark() ? i18n.t('common.lightMode') : i18n.t('common.darkMode')"
+      tooltipPosition="bottom"
+      aria-label="Toggle theme"
+    >
+      <i [class]="themeService.isDark() ? 'pi pi-sun' : 'pi pi-moon'"></i>
+    </button>
+    <button
+      type="button"
+      class="control-btn"
+      (click)="themeService.toggleLanguage()"
+      [pTooltip]="i18n.t('common.language')"
+      tooltipPosition="bottom"
+      aria-label="Toggle language"
+    >
+      <span class="lang-text">{{ themeService.currentLanguage().toUpperCase() }}</span>
+    </button>
+  </div>
+
+  <div class="auth-container">
+    <div class="auth-card">
+      <!-- Logo y branding -->
+      <div class="auth-brand">
+        <div class="brand-icon">
+          <i class="pi pi-user-plus"></i>
+        </div>
+        <h1 class="brand-title">{{ i18n.t('register.brand') }}</h1>
+        <p class="brand-subtitle">{{ i18n.t('register.brandSubtitle') }}</p>
+      </div>
+
+      <!-- Título de la sección -->
+      <div class="auth-section-title">
+        <h2>{{ i18n.t('register.title') }}</h2>
+        <p>{{ i18n.t('register.subtitle') }}</p>
+      </div>
+
+      <!-- Mensaje de error -->
+      @if (errorMessage) {
+        <div class="error-message" [@fadeIn]>
+          <i class="pi pi-exclamation-circle"></i>
+          <span>{{ errorMessage }}</span>
+        </div>
+      }
+
+      <!-- Formulario -->
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+        <!-- Nombre completo en dos columnas -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="txt-auth-firstname" class="form-label">
+              <i class="pi pi-user"></i>
+              {{ i18n.t('register.firstName') }}
+            </label>
+            <div class="input-wrapper">
+              <input
+                pInputText
+                id="txt-auth-firstname"
+                formControlName="firstName"
+                [placeholder]="i18n.t('register.firstNamePlaceholder')"
+                autocomplete="given-name"
+                aria-label="First Name"
+                aria-describedby="firstname-error"
+                [class.input-error]="firstName?.invalid && firstName?.touched"
+              />
+              @if (firstName?.invalid && firstName?.touched) {
+                <span class="input-icon-error">
+                  <i class="pi pi-times-circle"></i>
+                </span>
+              }
+            </div>
+            @if (firstName?.invalid && firstName?.touched) {
+              <small id="firstname-error" class="field-error" [@fadeIn]>{{ i18n.t('register.firstNameRequired') }}</small>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="txt-auth-lastname" class="form-label">
+              <i class="pi pi-user"></i>
+              {{ i18n.t('register.lastName') }}
+            </label>
+            <div class="input-wrapper">
+              <input
+                pInputText
+                id="txt-auth-lastname"
+                formControlName="lastName"
+                [placeholder]="i18n.t('register.lastNamePlaceholder')"
+                autocomplete="family-name"
+                aria-label="Last Name"
+                aria-describedby="lastname-error"
+                [class.input-error]="lastName?.invalid && lastName?.touched"
+              />
+              @if (lastName?.invalid && lastName?.touched) {
+                <span class="input-icon-error">
+                  <i class="pi pi-times-circle"></i>
+                </span>
+              }
+            </div>
+            @if (lastName?.invalid && lastName?.touched) {
+              <small id="lastname-error" class="field-error" [@fadeIn]>{{ i18n.t('register.lastNameRequired') }}</small>
+            }
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="txt-auth-email" class="form-label">
+            <i class="pi pi-envelope"></i>
+            {{ i18n.t('register.email') }}
+          </label>
+          <div class="input-wrapper">
+            <input
+              pInputText
+              id="txt-auth-email"
+              formControlName="email"
+              type="email"
+              [placeholder]="i18n.t('register.emailPlaceholder')"
+              autocomplete="email"
+              aria-label="Email Address"
+              aria-describedby="email-error"
+              [class.input-error]="email?.invalid && email?.touched"
+            />
+            @if (email?.invalid && email?.touched) {
+              <span class="input-icon-error">
+                <i class="pi pi-times-circle"></i>
+              </span>
+            }
+          </div>
+          @if (email?.invalid && email?.touched) {
+            <small id="email-error" class="field-error" [@fadeIn]>
+              @if (email?.errors?.['required']) {
+                {{ i18n.t('register.emailRequired') }}
+              } @else if (email?.errors?.['email']) {
+                {{ i18n.t('register.emailInvalid') }}
+              }
+            </small>
+          }
+        </div>
+
+        <!-- Password con indicador de fortaleza -->
+        <div class="form-group">
+          <label for="txt-auth-password" class="form-label">
+            <i class="pi pi-lock"></i>
+            {{ i18n.t('register.password') }}
+          </label>
+          <div class="password-input-wrapper">
+            <input
+              pInputText
+              type="password"
+              id="txt-auth-password"
+              formControlName="password"
+              [placeholder]="i18n.t('register.passwordPlaceholder')"
+              autocomplete="new-password"
+              [class.input-error]="password?.invalid && password?.touched"
+              #passwordInput
+            />
+            <button
+              type="button"
+              class="password-toggle-btn"
+              (click)="passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password'"
+              [attr.aria-label]="passwordInput.type === 'password' ? 'Mostrar contraseña' : 'Ocultar contraseña'"
+            >
+              <i [class]="passwordInput.type === 'password' ? 'pi pi-eye' : 'pi pi-eye-slash'"></i>
+            </button>
+          </div>
+          @if (password?.invalid && password?.touched) {
+            <small id="password-error" class="field-error" [@fadeIn]>
+              @if (password?.errors?.['required']) {
+                {{ i18n.t('register.passwordRequired') }}
+              } @else if (password?.errors?.['minlength']) {
+                {{ i18n.t('register.passwordMinLength') }}
+              }
+            </small>
+          }
+          @if (!password?.touched || !password?.invalid) {
+            <small id="password-hint" class="field-hint">
+              <i class="pi pi-info-circle"></i>
+              {{ i18n.t('register.passwordHint') }}
+            </small>
+          }
+        </div>
+
+        <!-- Terms and conditions -->
+        <div class="form-terms">
+          <small class="terms-text">
+            <i class="pi pi-info-circle"></i>
+            {{ i18n.t('register.terms') }}
+          </small>
+        </div>
+
+        <!-- Submit button -->
+        <button
+          pButton
+          type="submit"
+          id="btn-auth-register"
+          class="auth-submit-btn"
+          [disabled]="loading || registerForm.invalid"
+          aria-label="Create your account"
+        >
+          @if (loading) {
+            <i class="pi pi-spin pi-spinner"></i>
+            <span>{{ i18n.t('register.creatingAccount') }}</span>
+          } @else {
+            <span>{{ i18n.t('register.createAccount') }}</span>
+            <i class="pi pi-arrow-right"></i>
+          }
+        </button>
+      </form>
+
+      <!-- Divider -->
+      <div class="auth-divider">
+        <span>{{ i18n.t('register.orSignUpWith') }}</span>
+      </div>
+
+      <!-- Social signup -->
+      <div class="social-login">
+        <button type="button" class="social-btn social-google" disabled>
+          <i class="pi pi-google"></i>
+          <span>{{ i18n.t('common.google') }}</span>
+        </button>
+        <button type="button" class="social-btn social-github" disabled>
+          <i class="pi pi-github"></i>
+          <span>{{ i18n.t('common.github') }}</span>
+        </button>
+        <button type="button" class="social-btn social-apple" disabled>
+          <i class="pi pi-apple"></i>
+          <span>{{ i18n.t('common.apple') }}</span>
+        </button>
+        <button type="button" class="social-btn social-facebook" disabled>
+          <i class="pi pi-facebook"></i>
+          <span>{{ i18n.t('common.facebook') }}</span>
+        </button>
+        <button type="button" class="social-btn social-microsoft" disabled>
+          <i class="pi pi-microsoft"></i>
+          <span>{{ i18n.t('common.microsoft') }}</span>
+        </button>
+      </div>
+
+      <!-- Link a login -->
+      <div class="auth-switch">
+        <p>{{ i18n.t('register.haveAccount') }} <a routerLink="/auth/login" class="switch-link">{{ i18n.t('register.signIn') }}</a></p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="auth-footer">
+      <p>&copy; 2025 Planify. {{ i18n.t('common.allRightsReserved') }}</p>
+      <div class="footer-links">
+        <a href="#">{{ i18n.t('common.privacyPolicy') }}</a>
+        <span>•</span>
+        <a href="#">{{ i18n.t('common.termsOfService') }}</a>
+        <span>•</span>
+        <a href="#">{{ i18n.t('common.help') }}</a>
+      </div>
+    </footer>
+  </div>
+</div>

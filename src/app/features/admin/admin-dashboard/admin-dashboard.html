@@ -1,0 +1,202 @@
+<div class="admin-dashboard-container">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-info">
+      <h1 class="page-title">👑 Admin Dashboard</h1>
+      <p class="page-subtitle">System overview and statistics</p>
+    </div>
+    <div class="header-actions">
+      <button 
+        pButton 
+        icon="pi pi-refresh" 
+        label="Refresh"
+        class="p-button-outlined"
+        (click)="refreshStats()"
+        [loading]="isLoading()"
+      ></button>
+      <button 
+        pButton 
+        icon="pi pi-users" 
+        label="Manage Users"
+        class="p-button-primary"
+        (click)="navigateToUsers()"
+      ></button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading() && !stats()) {
+    <div class="stats-grid">
+      @for (item of [1,2,3,4]; track item) {
+        <div class="stat-skeleton">
+          <p-skeleton width="100%" height="120px" borderRadius="12px"></p-skeleton>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (hasError() && !isLoading()) {
+    <div class="empty-state">
+      <i class="pi pi-exclamation-triangle error-icon"></i>
+      <h3>Failed to load statistics</h3>
+      <p>There was an error loading the dashboard data. Please try again.</p>
+      <button pButton label="Retry" icon="pi pi-refresh" (click)="refreshStats()"></button>
+    </div>
+  }
+
+  <!-- Dashboard Content -->
+  @if (stats() && !isLoading()) {
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <!-- Total Users -->
+      <p-card class="stat-card users-card">
+        <ng-template pTemplate="content">
+          <div class="stat-content">
+            <div class="stat-icon">
+              <i class="pi pi-users"></i>
+            </div>
+            <div class="stat-info">
+              <h3 class="stat-value">{{ formatNumber(stats()!.totalUsers) }}</h3>
+              <p class="stat-label">Total Users</p>
+              <div class="stat-badge positive">
+                <i class="pi pi-arrow-up"></i>
+                <span>+{{ stats()!.userGrowth }}%</span>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+
+      <!-- Active Users -->
+      <p-card class="stat-card active-card">
+        <ng-template pTemplate="content">
+          <div class="stat-content">
+            <div class="stat-icon">
+              <i class="pi pi-check-circle"></i>
+            </div>
+            <div class="stat-info">
+              <h3 class="stat-value">{{ formatNumber(stats()!.activeUsers) }}</h3>
+              <p class="stat-label">Active Users</p>
+              <p class="stat-description">
+                {{ ((stats()!.activeUsers / stats()!.totalUsers) * 100).toFixed(1) }}% active rate
+              </p>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+
+      <!-- Total Boards -->
+      <p-card class="stat-card boards-card">
+        <ng-template pTemplate="content">
+          <div class="stat-content">
+            <div class="stat-icon">
+              <i class="pi pi-th-large"></i>
+            </div>
+            <div class="stat-info">
+              <h3 class="stat-value">{{ formatNumber(stats()!.totalBoards) }}</h3>
+              <p class="stat-label">Total Boards</p>
+              <p class="stat-description">{{ (stats()!.totalBoards / stats()!.totalUsers).toFixed(1) }} per user</p>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+
+      <!-- Total Tasks -->
+      <p-card class="stat-card tasks-card">
+        <ng-template pTemplate="content">
+          <div class="stat-content">
+            <div class="stat-icon">
+              <i class="pi pi-list"></i>
+            </div>
+            <div class="stat-info">
+              <h3 class="stat-value">{{ formatNumber(stats()!.totalTasks) }}</h3>
+              <p class="stat-label">Total Tasks</p>
+              <div class="stat-badge positive">
+                <i class="pi pi-check"></i>
+                <span>{{ stats()!.taskCompletionRate }}%</span>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+      <!-- User Growth Chart -->
+      <p-card class="chart-card">
+        <ng-template pTemplate="header">
+          <div class="chart-header">
+            <h3>User Growth</h3>
+            <span class="chart-subtitle">Last 6 months</span>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="content">
+          <div class="chart-container">
+            <p-chart type="line" [data]="userGrowthData" [options]="chartOptions" height="300px"></p-chart>
+          </div>
+        </ng-template>
+      </p-card>
+
+      <!-- Task Status Chart -->
+      <p-card class="chart-card">
+        <ng-template pTemplate="header">
+          <div class="chart-header">
+            <h3>Task Distribution</h3>
+            <span class="chart-subtitle">Current status breakdown</span>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="content">
+          <div class="chart-container">
+            <p-chart type="doughnut" [data]="taskStatusData" [options]="chartOptions" height="300px"></p-chart>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+
+    <!-- Additional Stats -->
+    <div class="additional-stats">
+      <p-card>
+        <ng-template pTemplate="header">
+          <h3>Additional Metrics</h3>
+        </ng-template>
+        <ng-template pTemplate="content">
+          <div class="metrics-grid">
+            <div class="metric-item">
+              <i class="pi pi-book metric-icon"></i>
+              <div class="metric-details">
+                <span class="metric-value">{{ formatNumber(stats()!.totalNotes) }}</span>
+                <span class="metric-label">Total Notes</span>
+              </div>
+            </div>
+            <div class="metric-item">
+              <i class="pi pi-check-square metric-icon"></i>
+              <div class="metric-details">
+                <span class="metric-value">{{ formatNumber(stats()!.completedTasks) }}</span>
+                <span class="metric-label">Completed Tasks</span>
+              </div>
+            </div>
+            <div class="metric-item">
+              <i class="pi pi-percentage metric-icon"></i>
+              <div class="metric-details">
+                <span class="metric-value">{{ stats()!.taskCompletionRate }}%</span>
+                <span class="metric-label">Completion Rate</span>
+              </div>
+            </div>
+            <div class="metric-item">
+              <i class="pi pi-chart-line metric-icon"></i>
+              <div class="metric-details">
+                <span class="metric-value">+{{ stats()!.userGrowth }}%</span>
+                <span class="metric-label">User Growth</span>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+  }
+
+  <!-- Toast Messages -->
+  <p-toast></p-toast>
+</div>

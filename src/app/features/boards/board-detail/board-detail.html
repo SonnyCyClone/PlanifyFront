@@ -1,0 +1,267 @@
+<div class="board-detail-container">
+  <!-- Confirmation Dialog -->
+  <p-confirmDialog></p-confirmDialog>
+  
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <p-skeleton width="200px" height="40px" styleClass="mb-3"></p-skeleton>
+      <div class="kanban-board">
+        @for (item of [1,2,3]; track item) {
+          <div class="kanban-column">
+            <p-skeleton width="150px" height="30px" styleClass="mb-3"></p-skeleton>
+            @for (card of [1,2,3]; track card) {
+              <p-skeleton width="100%" height="120px" styleClass="mb-2"></p-skeleton>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (hasError() && !isLoading()) {
+    <div class="empty-state">
+      <i class="pi pi-exclamation-circle error-icon"></i>
+      <h3>Error loading board</h3>
+      <button 
+        pButton 
+        label="Go Back" 
+        icon="pi pi-arrow-left" 
+        class="p-button-text"
+        (click)="goBack()"
+      ></button>
+    </div>
+  }
+
+  <!-- Board Content -->
+  @if (board() && !isLoading() && !hasError()) {
+    <!-- Header -->
+    <div class="board-header">
+      <button 
+        pButton 
+        icon="pi pi-arrow-left" 
+        class="p-button-text p-button-rounded"
+        (click)="goBack()"
+        pTooltip="Back to boards"
+      ></button>
+      
+      <div class="board-info">
+        <h1 class="board-title">{{ board()!.name }}</h1>
+        @if (board()!.description) {
+          <p class="board-description">{{ board()!.description }}</p>
+        }
+      </div>
+
+      <div class="board-actions">
+        <!-- Future: Add board settings, filters, etc -->
+      </div>
+    </div>
+
+    <!-- Kanban Board -->
+    <div class="kanban-board">
+      @for (column of columns(); track column.id) {
+        <div class="kanban-column">
+          <!-- Column Header -->
+          <div class="column-header">
+            <h3 class="column-title">
+              {{ column.name }}
+              <span class="task-count">{{ column.tasks.length }}</span>
+            </h3>
+            <button 
+              pButton 
+              icon="pi pi-plus" 
+              class="p-button-text p-button-sm p-button-rounded"
+              (click)="openCreateTaskDialog(column)"
+              pTooltip="Add task"
+            ></button>
+          </div>
+
+          <!-- Tasks (Droppable) -->
+          <div 
+            class="column-tasks"
+            cdkDropList
+            [cdkDropListData]="column.tasks"
+            [cdkDropListConnectedTo]="connectedDropLists()"
+            [id]="'column-' + column.id"
+            (cdkDropListDropped)="onTaskDrop($event, column.id)"
+          >
+            @for (task of column.tasks; track task.id) {
+              <div 
+                class="task-card" 
+                cdkDrag
+                [cdkDragData]="task"
+                (click)="openEditTaskDialog(task)"
+              >
+                <!-- Drag Preview -->
+                <div class="task-drag-preview" *cdkDragPreview>
+                  <div class="task-preview-content">
+                    <p-tag [value]="task.priority" [severity]="$any(getPriorityColor(task.priority))"></p-tag>
+                    <span>{{ task.title }}</span>
+                  </div>
+                </div>
+
+                <!-- Drag Placeholder -->
+                <div class="task-drag-placeholder" *cdkDragPlaceholder></div>
+
+                <div class="task-header">
+                  <div class="task-badges">
+                    <p-tag 
+                      [value]="task.priority" 
+                      [severity]="$any(getPriorityColor(task.priority))"
+                    ></p-tag>
+                    <p-tag 
+                      [value]="task.status" 
+                      [severity]="$any(getStatusColor(task.status))"
+                      [rounded]="true"
+                    ></p-tag>
+                  </div>
+                  <button 
+                    pButton 
+                    icon="pi pi-trash" 
+                    class="p-button-text p-button-sm p-button-rounded p-button-danger task-delete-btn"
+                    (click)="deleteTask(task, $event)"
+                    pTooltip="Delete task"
+                  ></button>
+                </div>
+
+                <h4 class="task-title">{{ task.title }}</h4>
+                
+                @if (task.description) {
+                  <p class="task-description">{{ task.description }}</p>
+                }
+
+                @if (task.tags.length > 0) {
+                  <div class="task-tags">
+                    @for (tag of task.tags; track tag) {
+                      <span class="task-tag">{{ tag }}</span>
+                    }
+                  </div>
+                }
+
+                @if (task.dueAt) {
+                  <div class="task-footer">
+                    <span class="task-due-date">
+                      <i class="pi pi-calendar"></i>
+                      {{ formatDate(task.dueAt) }}
+                    </span>
+                  </div>
+                }
+              </div>
+            }
+
+            @if (column.tasks.length === 0) {
+              <div class="empty-column">
+                <i class="pi pi-inbox"></i>
+                <p>No tasks yet</p>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Task Dialog -->
+<p-dialog 
+  [(visible)]="showTaskDialog" 
+  [header]="isEditingTask() ? 'Edit Task' : 'Create Task'"
+  [modal]="true"
+  [style]="{width: '600px'}"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="closeTaskDialog()"
+>
+  <div class="dialog-content">
+    <div class="p-fluid">
+      <!-- Title -->
+      <div class="field">
+        <label for="taskTitle">Title *</label>
+        <input 
+          id="taskTitle"
+          type="text" 
+          pInputText 
+          [ngModel]="taskTitle()"
+          (ngModelChange)="taskTitle.set($event)"
+          placeholder="Task title"
+          [disabled]="isSavingTask()"
+        />
+      </div>
+
+      <!-- Description -->
+      <div class="field">
+        <label for="taskDescription">Description</label>
+        <textarea 
+          id="taskDescription"
+          pTextarea 
+          [ngModel]="taskDescription()"
+          (ngModelChange)="taskDescription.set($event)"
+          placeholder="Task description"
+          [rows]="4"
+          [disabled]="isSavingTask()"
+        ></textarea>
+      </div>
+
+      <!-- Priority -->
+      <div class="field">
+        <label for="taskPriority">Priority</label>
+        <p-select 
+          [ngModel]="taskPriority()"
+          (ngModelChange)="taskPriority.set($event)"
+          [options]="priorityOptions"
+          placeholder="Select priority"
+          [disabled]="isSavingTask()"
+        ></p-select>
+      </div>
+
+      <!-- Due Date -->
+      <div class="field">
+        <label for="taskDueDate">Due Date</label>
+        <p-datepicker 
+          [ngModel]="taskDueDate()"
+          (ngModelChange)="taskDueDate.set($event)"
+          [showIcon]="true"
+          placeholder="Select date"
+          [disabled]="isSavingTask()"
+        ></p-datepicker>
+      </div>
+
+      <!-- Tags -->
+      <div class="field">
+        <label for="taskTags">Tags</label>
+        <input 
+          id="taskTags"
+          type="text" 
+          pInputText 
+          [ngModel]="taskTags().join(', ')"
+          (ngModelChange)="onTagsChange($event)"
+          placeholder="Enter tags (comma separated)"
+          [disabled]="isSavingTask()"
+        />
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      label="Cancel" 
+      icon="pi pi-times" 
+      class="p-button-text"
+      (click)="closeTaskDialog()"
+      [disabled]="isSavingTask()"
+    ></button>
+    <button 
+      pButton 
+      [label]="isEditingTask() ? 'Save' : 'Create'" 
+      icon="pi pi-check" 
+      class="p-button-primary"
+      (click)="saveTask()"
+      [loading]="isSavingTask()"
+    ></button>
+  </ng-template>
+</p-dialog>
+
+<!-- Toast Messages -->
+<p-toast></p-toast>

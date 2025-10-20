@@ -1,0 +1,168 @@
+<div class="note-list-container">
+  <!-- Confirmation Dialog -->
+  <p-confirmDialog></p-confirmDialog>
+  
+  <!-- Header -->
+  <div class="notes-header">
+    <div class="header-info">
+      <h1 class="page-title">📝 My Notes</h1>
+      <p class="page-subtitle">Organize your thoughts and ideas</p>
+    </div>
+    <button 
+      pButton 
+      icon="pi pi-plus" 
+      label="New Note"
+      class="p-button-primary"
+      (click)="openCreateNoteDialog()"
+    ></button>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      @for (item of [1,2,3,4]; track item) {
+        <div class="note-skeleton">
+          <p-skeleton width="100%" height="180px" borderRadius="12px"></p-skeleton>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (hasError() && !isLoading()) {
+    <div class="empty-state">
+      <i class="pi pi-exclamation-triangle error-icon"></i>
+      <h3>Failed to load notes</h3>
+      <p>There was an error loading your notes. Please try again.</p>
+      <button pButton label="Retry" icon="pi pi-refresh" (click)="loadNotes()"></button>
+    </div>
+  }
+
+  <!-- Notes Grid -->
+  @if (!isLoading() && !hasError()) {
+    @if (notes().length === 0) {
+      <div class="empty-state">
+        <i class="pi pi-book"></i>
+        <h3>No notes yet</h3>
+        <p>Create your first note to get started</p>
+        <button 
+          pButton 
+          label="Create Note" 
+          icon="pi pi-plus"
+          class="p-button-primary"
+          (click)="openCreateNoteDialog()"
+        ></button>
+      </div>
+    } @else {
+      <div class="notes-grid">
+        @for (note of notes(); track note.id) {
+          <div class="note-card-wrapper">
+            <p-card class="note-card" (click)="viewNoteDetail(note)">
+              <ng-template pTemplate="header">
+                <div class="note-header">
+                  <h3 class="note-title">{{ note.title }}</h3>
+                  <div class="note-actions">
+                    <button 
+                      pButton 
+                      icon="pi pi-pencil" 
+                      class="p-button-text p-button-sm p-button-rounded"
+                      pTooltip="Edit"
+                      (click)="openEditNoteDialog(note); $event.stopPropagation()"
+                    ></button>
+                    <button 
+                      pButton 
+                      icon="pi pi-trash" 
+                      class="p-button-text p-button-sm p-button-rounded p-button-danger"
+                      pTooltip="Delete"
+                      (click)="deleteNote(note, $event)"
+                    ></button>
+                  </div>
+                </div>
+              </ng-template>
+              
+              <ng-template pTemplate="content">
+                <p class="note-excerpt">{{ getContentExcerpt(note.content) }}</p>
+              </ng-template>
+              
+              <ng-template pTemplate="footer">
+                <div class="note-footer">
+                  <span class="note-date">
+                    <i class="pi pi-calendar"></i>
+                    {{ formatDate(note.updatedAt || note.createdAt) }}
+                  </span>
+                </div>
+              </ng-template>
+            </p-card>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- Create/Edit Dialog -->
+  <p-dialog 
+    [(visible)]="showNoteDialog"
+    [header]="isEditingNote() ? 'Edit Note' : 'Create Note'"
+    [modal]="true"
+    [style]="{width: '600px'}"
+    [draggable]="false"
+    [resizable]="false"
+    (onHide)="closeNoteDialog()"
+  >
+    <div class="dialog-content">
+      <div class="field">
+        <label for="title">
+          <i class="pi pi-tag"></i>
+          Title *
+        </label>
+        <input 
+          pInputText
+          id="title"
+          [(ngModel)]="noteTitle"
+          placeholder="Enter note title"
+          class="w-full"
+          [disabled]="isSavingNote()"
+        />
+      </div>
+
+      <div class="field">
+        <label for="content">
+          <i class="pi pi-file-edit"></i>
+          Content *
+        </label>
+        <textarea 
+          pTextarea
+          id="content"
+          [(ngModel)]="noteContent"
+          placeholder="Enter note content (Markdown supported)"
+          rows="12"
+          class="w-full"
+          [disabled]="isSavingNote()"
+        ></textarea>
+        <small class="help-text">💡 You can use Markdown formatting</small>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button 
+        pButton 
+        label="Cancel" 
+        icon="pi pi-times" 
+        class="p-button-text p-button-secondary"
+        (click)="closeNoteDialog()"
+        [disabled]="isSavingNote()"
+      ></button>
+      <button 
+        pButton 
+        [label]="isEditingNote() ? 'Update' : 'Create'" 
+        icon="pi pi-check"
+        class="p-button-primary"
+        (click)="saveNote()"
+        [loading]="isSavingNote()"
+      ></button>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Toast Messages -->
+  <p-toast></p-toast>
+</div>

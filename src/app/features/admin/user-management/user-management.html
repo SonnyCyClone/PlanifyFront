@@ -1,0 +1,191 @@
+<div class="user-management-container">
+  <!-- Confirmation Dialog -->
+  <p-confirmDialog></p-confirmDialog>
+  
+  <!-- Header -->
+  <div class="users-header">
+    <div class="header-info">
+      <h1 class="page-title">👥 User Management</h1>
+      <p class="page-subtitle">Manage system users and permissions</p>
+    </div>
+    <button 
+      pButton 
+      icon="pi pi-refresh" 
+      label="Refresh"
+      (click)="loadUsers()"
+      [loading]="isLoading()"
+    ></button>
+  </div>
+
+  <!-- Users Table -->
+  <p-table 
+    [value]="users()" 
+    [loading]="isLoading()"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[10, 20, 50]"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} users"
+    styleClass="p-datatable-striped"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>User</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Status</th>
+        <th>Last Login</th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+    
+    <ng-template pTemplate="body" let-user>
+      <tr>
+        <td>
+          <div class="user-info">
+            <div class="user-avatar">
+              {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
+            </div>
+            <div class="user-details">
+              <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
+              <span class="user-joined">Joined {{ formatDate(user.createdAt) }}</span>
+            </div>
+          </div>
+        </td>
+        <td>{{ user.email }}</td>
+        <td>
+          <p-tag 
+            [value]="user.role" 
+            [severity]="$any(getRoleSeverity(user.role))"
+          ></p-tag>
+        </td>
+        <td>
+          @if (user.isActive) {
+            <p-tag value="Active" severity="success"></p-tag>
+          } @else {
+            <p-tag value="Inactive" severity="danger"></p-tag>
+          }
+        </td>
+        <td>
+          <span class="last-login">{{ formatDate(user.lastLoginAt) }}</span>
+        </td>
+        <td>
+          <div class="action-buttons">
+            <button 
+              pButton 
+              icon="pi pi-pencil" 
+              class="p-button-text p-button-sm"
+              pTooltip="Edit User"
+              (click)="openEditUserDialog(user)"
+            ></button>
+            <button 
+              pButton 
+              icon="pi pi-trash" 
+              class="p-button-text p-button-sm p-button-danger"
+              pTooltip="Delete User"
+              (click)="deleteUser(user)"
+              [disabled]="user.role === 'Admin'"
+            ></button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6">
+          <div class="empty-table">
+            <i class="pi pi-users"></i>
+            <p>No users found</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <!-- Edit User Dialog -->
+  <p-dialog 
+    [(visible)]="showUserDialog"
+    header="Edit User"
+    [modal]="true"
+    [style]="{width: '500px'}"
+    [draggable]="false"
+    [resizable]="false"
+    (onHide)="closeUserDialog()"
+  >
+    <div class="dialog-content">
+      <div class="field">
+        <label for="firstName">First Name *</label>
+        <input 
+          pInputText 
+          id="firstName"
+          type="text"
+          [(ngModel)]="userFirstName"
+          placeholder="First name"
+          class="w-full"
+          [disabled]="isSavingUser()"
+        />
+      </div>
+
+      <div class="field">
+        <label for="lastName">Last Name *</label>
+        <input 
+          pInputText 
+          id="lastName"
+          type="text"
+          [(ngModel)]="userLastName"
+          placeholder="Last name"
+          class="w-full"
+          [disabled]="isSavingUser()"
+        />
+      </div>
+
+      <div class="field">
+        <label for="role">Role</label>
+        <p-select
+          id="role"
+          [(ngModel)]="userRole"
+          [options]="roleOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select role"
+          class="w-full"
+          [disabled]="isSavingUser()"
+        />
+      </div>
+
+      <div class="field">
+        <div class="switch-field">
+          <label for="isActive">Active Status</label>
+          <p-toggleSwitch 
+            id="isActive"
+            [(ngModel)]="userIsActive"
+            [disabled]="isSavingUser()"
+          />
+        </div>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button 
+        pButton 
+        label="Cancel" 
+        icon="pi pi-times" 
+        class="p-button-text"
+        (click)="closeUserDialog()"
+        [disabled]="isSavingUser()"
+      ></button>
+      <button 
+        pButton 
+        label="Save Changes" 
+        icon="pi pi-check"
+        class="p-button-primary"
+        (click)="saveUser()"
+        [loading]="isSavingUser()"
+      ></button>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Toast Messages -->
+  <p-toast></p-toast>
+</div>

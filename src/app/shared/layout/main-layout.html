@@ -1,0 +1,212 @@
+<div class="layout-wrapper" [class.sidebar-open]="isSidebarOpen()">
+  <!-- Header -->
+  <header class="layout-header">
+    <div class="header-container">
+      <!-- Logo y Brand -->
+      <div class="header-brand">
+        <button 
+          class="sidebar-toggle" 
+          pButton 
+          icon="pi pi-bars" 
+          (click)="toggleSidebar()"
+          [pTooltip]="i18n.t('tooltip.menu')"
+          tooltipPosition="bottom"
+        ></button>
+        <a routerLink="/boards" class="brand-link">
+          <div class="brand-icon">
+            <i class="pi pi-check-circle"></i>
+          </div>
+          <span class="brand-name">Planify</span>
+        </a>
+      </div>
+
+      <!-- Navigation Desktop -->
+      <nav class="header-nav desktop-nav">
+        <a 
+          routerLink="/boards" 
+          routerLinkActive="active"
+          class="nav-link"
+          [pTooltip]="i18n.t('layout.boards')"
+          tooltipPosition="bottom"
+        >
+          <i class="pi pi-th-large"></i>
+          <span>{{ i18n.t('layout.boards') }}</span>
+        </a>
+        <a 
+          routerLink="/notes" 
+          routerLinkActive="active"
+          class="nav-link"
+          [pTooltip]="i18n.t('layout.notes')"
+          tooltipPosition="bottom"
+        >
+          <i class="pi pi-book"></i>
+          <span>{{ i18n.t('layout.notes') }}</span>
+        </a>
+        @if (isAdmin()) {
+          <a 
+            routerLink="/admin" 
+            routerLinkActive="active"
+            class="nav-link"
+            [pTooltip]="i18n.t('layout.admin')"
+            tooltipPosition="bottom"
+          >
+            <i class="pi pi-shield"></i>
+            <span>{{ i18n.t('layout.admin') }}</span>
+          </a>
+        }
+      </nav>
+
+      <!-- Actions -->
+      <div class="header-actions">
+        <!-- Theme Toggle -->
+        <button
+          pButton
+          [icon]="themeService.isDark() ? 'pi pi-sun' : 'pi pi-moon'"
+          class="p-button-rounded p-button-text theme-toggle"
+          (click)="toggleTheme()"
+          [pTooltip]="i18n.t(themeService.isDark() ? 'common.lightMode' : 'common.darkMode')"
+          tooltipPosition="bottom"
+        ></button>
+
+        <!-- Language Toggle -->
+        <button
+          pButton
+          icon="pi pi-globe"
+          class="p-button-rounded p-button-text lang-toggle"
+          (click)="toggleLanguage()"
+          [pTooltip]="i18n.t(themeService.currentLanguage() === 'es' ? 'layout.switchToEnglish' : 'layout.switchToSpanish')"
+          tooltipPosition="bottom"
+        >
+          <span class="lang-text">{{ themeService.currentLanguage().toUpperCase() }}</span>
+        </button>
+
+        <!-- User Menu -->
+        <div class="user-menu">
+          <button
+            pButton
+            class="user-button"
+            (click)="userMenu.toggle($event)"
+            [pTooltip]="i18n.t('tooltip.userMenu')"
+            tooltipPosition="bottom"
+            aria-label="User menu"
+            aria-haspopup="true"
+          >
+            <p-avatar
+              [label]="getUserInitials()"
+              shape="circle"
+              styleClass="user-avatar"
+            ></p-avatar>
+            <span class="user-name">{{ getUserFullName() }}</span>
+            <i class="pi pi-chevron-down"></i>
+          </button>
+          <p-menu 
+            #userMenu 
+            [model]="userMenuItems" 
+            [popup]="true"
+            appendTo="body"
+            [autoZIndex]="true"
+            [baseZIndex]="1000"
+          ></p-menu>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar Mobile -->
+  <aside class="layout-sidebar" [class.open]="isSidebarOpen()">
+    <div class="sidebar-header">
+      <h3>{{ i18n.t('layout.navigation') }}</h3>
+      <button 
+        pButton 
+        icon="pi pi-times" 
+        class="p-button-text p-button-rounded"
+        (click)="toggleSidebar()"
+        [pTooltip]="i18n.t('tooltip.close')"
+      ></button>
+    </div>
+    <nav class="sidebar-nav">
+      <a 
+        routerLink="/boards" 
+        routerLinkActive="active"
+        class="sidebar-link"
+        (click)="toggleSidebar()"
+      >
+        <i class="pi pi-th-large"></i>
+        <span>{{ i18n.t('layout.boards') }}</span>
+      </a>
+      <a 
+        routerLink="/notes" 
+        routerLinkActive="active"
+        class="sidebar-link"
+        (click)="toggleSidebar()"
+      >
+        <i class="pi pi-book"></i>
+        <span>{{ i18n.t('layout.notes') }}</span>
+      </a>
+      @if (isAdmin()) {
+        <a 
+          routerLink="/admin" 
+          routerLinkActive="active"
+          class="sidebar-link"
+          (click)="toggleSidebar()"
+        >
+          <i class="pi pi-shield"></i>
+          <span>{{ i18n.t('layout.admin') }}</span>
+        </a>
+      }
+      <div class="sidebar-divider"></div>
+      <a 
+        routerLink="/profile" 
+        class="sidebar-link"
+        (click)="toggleSidebar()"
+      >
+        <i class="pi pi-user"></i>
+        <span>{{ i18n.t('layout.profile') }}</span>
+      </a>
+      <a 
+        routerLink="/settings" 
+        class="sidebar-link"
+        (click)="toggleSidebar()"
+      >
+        <i class="pi pi-cog"></i>
+        <span>{{ i18n.t('layout.settings') }}</span>
+      </a>
+      <button 
+        class="sidebar-link logout-button" 
+        (click)="logout(); toggleSidebar()"
+      >
+        <i class="pi pi-sign-out"></i>
+        <span>{{ i18n.t('layout.logout') }}</span>
+      </button>
+    </nav>
+  </aside>
+
+  <!-- Overlay para sidebar mobile -->
+  @if (isSidebarOpen()) {
+    <div class="sidebar-overlay" (click)="toggleSidebar()"></div>
+  }
+
+  <!-- Main Content -->
+  <main class="layout-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Footer -->
+  <footer class="layout-footer">
+    <div class="footer-container">
+      <div class="footer-left">
+        <span class="footer-copyright">
+          &copy; 2025 Planify. {{ i18n.t('layout.copyright') }}.
+        </span>
+        <span class="footer-version">{{ i18n.t('layout.version') }} 1.0.0</span>
+      </div>
+      <div class="footer-links">
+        <a href="#" class="footer-link">{{ i18n.t('common.privacyPolicy') }}</a>
+        <span class="footer-separator">•</span>
+        <a href="#" class="footer-link">{{ i18n.t('common.termsOfService') }}</a>
+        <span class="footer-separator">•</span>
+        <a href="#" class="footer-link">{{ i18n.t('common.help') }}</a>
+      </div>
+    </div>
+  </footer>
+</div>

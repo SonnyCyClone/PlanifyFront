@@ -1,0 +1,201 @@
+<div class="auth-background">
+  <div class="animated-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <!-- Theme and Language Controls -->
+  <div class="auth-controls">
+    <button
+      type="button"
+      class="control-btn"
+      (click)="themeService.toggleTheme()"
+      [pTooltip]="themeService.isDark() ? i18n.t('common.lightMode') : i18n.t('common.darkMode')"
+      tooltipPosition="bottom"
+      aria-label="Toggle theme"
+    >
+      <i [class]="themeService.isDark() ? 'pi pi-sun' : 'pi pi-moon'"></i>
+    </button>
+    <button
+      type="button"
+      class="control-btn"
+      (click)="themeService.toggleLanguage()"
+      [pTooltip]="i18n.t('common.language')"
+      tooltipPosition="bottom"
+      aria-label="Toggle language"
+    >
+      <span class="lang-text">{{ themeService.currentLanguage().toUpperCase() }}</span>
+    </button>
+  </div>
+
+  <div class="auth-container">
+    <div class="auth-card">
+      <!-- Logo y branding -->
+      <div class="auth-brand">
+        <div class="brand-icon">
+          <i class="pi pi-check-circle"></i>
+        </div>
+        <h1 class="brand-title">Planify</h1>
+        <p class="brand-subtitle">Project Management Made Simple</p>
+      </div>
+
+      <!-- Título de la sección -->
+      <div class="auth-section-title">
+        <h2>{{ i18n.t('login.title') }}</h2>
+        <p>{{ i18n.t('login.subtitle') }}</p>
+      </div>
+
+      <!-- Mensaje de error -->
+      @if (errorMessage) {
+        <div class="error-message" [@fadeIn]>
+          <i class="pi pi-exclamation-circle"></i>
+          <span>{{ errorMessage }}</span>
+        </div>
+      }
+
+      <!-- Formulario -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+        <div class="form-group">
+          <label for="txt-auth-email" class="form-label">
+            <i class="pi pi-envelope"></i>
+            {{ i18n.t('login.email') }}
+          </label>
+          <div class="input-wrapper">
+            <input
+              pInputText
+              id="txt-auth-email"
+              formControlName="email"
+              type="email"
+              [placeholder]="i18n.t('login.emailPlaceholder')"
+              autocomplete="email"
+              aria-label="Email Address"
+              aria-describedby="email-error"
+              [class.input-error]="email?.invalid && email?.touched"
+            />
+            @if (email?.invalid && email?.touched) {
+              <span class="input-icon-error">
+                <i class="pi pi-times-circle"></i>
+              </span>
+            }
+          </div>
+          @if (email?.invalid && email?.touched) {
+            <small id="email-error" class="field-error" [@fadeIn]>
+              @if (email?.errors?.['required']) {
+                {{ i18n.t('login.emailRequired') }}
+              } @else if (email?.errors?.['email']) {
+                {{ i18n.t('login.emailInvalid') }}
+              }
+            </small>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="txt-auth-password" class="form-label">
+            <i class="pi pi-lock"></i>
+            {{ i18n.t('login.password') }}
+          </label>
+          <div class="password-input-wrapper">
+            <input
+              pInputText
+              type="password"
+              id="txt-auth-password"
+              formControlName="password"
+              [placeholder]="i18n.t('login.passwordPlaceholder')"
+              autocomplete="current-password"
+              [class.input-error]="password?.invalid && password?.touched"
+              #passwordInput
+            />
+            <button
+              type="button"
+              class="password-toggle-btn"
+              (click)="passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password'"
+              [attr.aria-label]="passwordInput.type === 'password' ? 'Mostrar contraseña' : 'Ocultar contraseña'"
+            >
+              <i [class]="passwordInput.type === 'password' ? 'pi pi-eye' : 'pi pi-eye-slash'"></i>
+            </button>
+          </div>
+          @if (password?.invalid && password?.touched) {
+            <small id="password-error" class="field-error" [@fadeIn]>
+              @if (password?.errors?.['required']) {
+                {{ i18n.t('login.passwordRequired') }}
+              } @else if (password?.errors?.['minlength']) {
+                {{ i18n.t('login.passwordMinLength') }}
+              }
+            </small>
+          }
+        </div>
+
+        <div class="form-options">
+          <div class="remember-me">
+            <!-- Remember me functionality for future -->
+          </div>
+          <a href="#" class="forgot-link">{{ i18n.t('login.forgotPassword') }}</a>
+        </div>
+
+        <button
+          pButton
+          type="submit"
+          id="btn-auth-login"
+          class="auth-submit-btn"
+          [disabled]="loading || loginForm.invalid"
+          aria-label="Sign in to your account"
+        >
+          @if (loading) {
+            <i class="pi pi-spin pi-spinner"></i>
+            <span>{{ i18n.t('login.signingIn') }}</span>
+          } @else {
+            <span>{{ i18n.t('login.signIn') }}</span>
+            <i class="pi pi-arrow-right"></i>
+          }
+        </button>
+      </form>
+
+      <!-- Divider -->
+      <div class="auth-divider">
+        <span>{{ i18n.t('login.or') }}</span>
+      </div>
+
+      <!-- Social login -->
+      <div class="social-login">
+        <button type="button" class="social-btn social-google" disabled>
+          <i class="pi pi-google"></i>
+          <span>{{ i18n.t('common.google') }}</span>
+        </button>
+        <button type="button" class="social-btn social-github" disabled>
+          <i class="pi pi-github"></i>
+          <span>{{ i18n.t('common.github') }}</span>
+        </button>
+        <button type="button" class="social-btn social-apple" disabled>
+          <i class="pi pi-apple"></i>
+          <span>{{ i18n.t('common.apple') }}</span>
+        </button>
+        <button type="button" class="social-btn social-facebook" disabled>
+          <i class="pi pi-facebook"></i>
+          <span>{{ i18n.t('common.facebook') }}</span>
+        </button>
+        <button type="button" class="social-btn social-microsoft" disabled>
+          <i class="pi pi-microsoft"></i>
+          <span>{{ i18n.t('common.microsoft') }}</span>
+        </button>
+      </div>
+
+      <!-- Link a registro -->
+      <div class="auth-switch">
+        <p>{{ i18n.t('login.noAccount') }} <a routerLink="/auth/register" class="switch-link">{{ i18n.t('login.createOne') }}</a></p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="auth-footer">
+      <p>&copy; 2025 Planify. {{ i18n.t('common.allRightsReserved') }}</p>
+      <div class="footer-links">
+        <a href="#">{{ i18n.t('common.privacyPolicy') }}</a>
+        <span>•</span>
+        <a href="#">{{ i18n.t('common.termsOfService') }}</a>
+        <span>•</span>
+        <a href="#">{{ i18n.t('common.help') }}</a>
+      </div>
+    </footer>
+  </div>
+</div>

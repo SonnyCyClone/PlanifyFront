@@ -1,0 +1,135 @@
+# ============ TRIGGERS ============
+trigger:
+  branches:
+    include: [ main ]   # Despliega solo cuando haces push a main
+pr:
+  branches:
+    include: [ '*' ]    # Valida PRs de cualquier rama (sin desplegar)
+
+# ============ VARIABLES ============
+variables:
+  azureSubscription: 'sc-azure-planify'   # <-- Ajusta si tu Service Connection tiene otro nombre
+  appName: 'Az-Planify-Front'             # Web App destino
+  feRoot: '.'
+  zipName: 'planify-frontend.zip'
+
+# ============ AGENTE ============
+pool:
+  vmImage: 'windows-latest'               # Usa agente hospedado de Microsoft (simple y sin dependencias)
+
+# ============ STAGE ÚNICO ============
+stages:
+- stage: Build_Deploy
+  displayName: Build & Deploy Planify
+  jobs:
+  - job: build_and_deploy
+    displayName: Build & Deploy
+    steps:
+    - checkout: self
+      clean: true
+
+    - task: NodeTool@0
+      displayName: 'Use Node 20.x'
+      inputs:
+        versionSpec: '20.x'
+
+    - script: |
+        node -v
+        npm -v
+        echo SOURCES=$(Build.SourcesDirectory)
+      displayName: 'Versiones'
+
+    # Quitar budgets en CI (sin límites de tamaño)
+    - powershell: |
+        $ErrorActionPreference = 'Stop'
+        function Remove-PropIfExists([object]$obj, [string]$propName) {
+          if ($null -ne $obj) {
+            $prop = $obj.PSObject.Properties.Match($propName)
+            if ($prop -and $prop.Count -gt 0) { $obj.PSObject.Properties.Remove($propName) | Out-Null }
+          }
+        }
+
+        $root = "$(feRoot)"
+        $angularPath = Join-Path $root 'angular.json'
+        if (-not (Test-Path $angularPath)) { throw "No se encontró angular.json en '$root'." }
+
+        $json = Get-Content $angularPath -Raw | ConvertFrom-Json
+        if (-not $json.projects) { throw "No se encontró 'projects' en angular.json." }
+
+        foreach ($projProp in $json.projects.PSObject.Properties) {
+          $proj = $projProp.Value
+          if ($null -eq $proj) { continue }
+
+          $build = $null
+          if ($proj.targets -and $proj.targets.build) { $build = $proj.targets.build }
+          elseif ($proj.architect -and $proj.architect.build) { $build = $proj.architect.build }
+
+          if ($null -eq $build) { continue }
+          Remove-PropIfExists -obj $build -propName 'budgets'
+
+          $cfgs = $null
+          if ($build.configurations) { $cfgs = $build.configurations }
+          elseif ($build.options -and $build.options.configurations) { $cfgs = $build.options.configurations }
+
+          if ($cfgs) {
+            foreach ($cfgProp in $cfgs.PSObject.Properties) {
+              $cfg = $cfgProp.Value
+              Remove-PropIfExists -obj $cfg -propName 'budgets'
+            }
+          }
+        }
+
+        ($json | ConvertTo-Json -Depth 100) | Set-Content $angularPath -Encoding UTF8
+        Write-Host "Budgets ELIMINADOS para CI."
+      displayName: 'Eliminar budgets (sin límites)'
+
+    # Instalar deps y compilar
+    - script: |
+        cd $(feRoot)
+        if not exist package-lock.json ( echo FALTA package-lock.json && exit /b 1 )
+        echo npm ci
+        npm ci
+        if %ERRORLEVEL% NEQ 0 (
+          echo "npm ci falló. Intentando npm install --legacy-peer-deps"
+          npm install --legacy-peer-deps
+          if %ERRORLEVEL% NEQ 0 exit /b 1
+        )
+        echo ng build --configuration production --output-path dist --verbose
+        npm run build -- --configuration production --output-path dist --verbose
+      displayName: 'npm ci & ng build'
+
+    # Empaquetar dist + web.config
+    - powershell: |
+        $srcRoot  = "$(Build.SourcesDirectory)"
+        $distRoot = Join-Path $srcRoot 'dist'
+        if (-not (Test-Path $distRoot)) { throw "No existe 'dist'. ¿Falló el build?" }
+
+        # Detectar carpeta final (Angular 15+ suele crear dist/<app>/browser)
+        $sub = Get-ChildItem -Directory $distRoot | Select-Object -First 1
+        if (-not $sub) { throw "No se encontró subcarpeta en dist." }
+
+        $content = Join-Path $sub.FullName 'browser'
+        if (-not (Test-Path $content)) { $content = $sub.FullName }
+
+        $webConfig = Join-Path $srcRoot 'web.config'
+        if (-not (Test-Path $webConfig)) { throw "Falta web.config en la raíz del repo." }
+        Copy-Item -Force $webConfig (Join-Path $content 'web.config')
+
+        $outDir  = "$(Build.ArtifactStagingDirectory)"
+        New-Item -ItemType Directory -Force -Path $outDir | Out-Null
+        $zipPath = Join-Path $outDir "$(zipName)"
+        if (Test-Path $zipPath) { Remove-Item -Force $zipPath }
+
+        Write-Host "Creando ZIP: $zipPath"
+        Compress-Archive -Path (Join-Path $content '*') -DestinationPath $zipPath -Force
+      displayName: 'Crear ZIP para despliegue'
+
+    # Deploy directo a la Web App (sin environments intermedios)
+    - task: AzureWebApp@1
+      displayName: 'Deploy a $(appName)'
+      inputs:
+        azureSubscription: '$(azureSubscription)'
+        appType: 'webApp'
+        appName: '$(appName)'
+        package: '$(Build.ArtifactStagingDirectory)/$(zipName)'
+      condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'main'))

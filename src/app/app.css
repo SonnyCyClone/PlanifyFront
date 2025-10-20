@@ -1,0 +1,41 @@
+/* Main app styles */
+
+/* Session refresh dialog styles */
+.session-dialog-content {
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.session-icon {
+  margin-bottom: 1.5rem;
+}
+
+.session-message {
+  font-size: 1.125rem;
+  color: var(--text-color);
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+
+.session-question {
+  font-size: 1rem;
+  color: var(--text-color-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.session-warning {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background-color: var(--surface-50);
+  border-radius: var(--border-radius);
+  font-size: 0.875rem;
+  color: var(--text-color-secondary);
+  margin-top: 1rem;
+}
+
+.session-warning .pi {
+  color: var(--primary-color);
+}

@@ -1,0 +1,3181 @@
+{
+	"info": {
+		"_postman_id": "72ba70bc-f06c-4bc6-8856-64ff6c8b315c",
+		"name": "Planify API - Complete Collection",
+		"description": "API para gestión de tableros de tareas y notas.\n\n**Base URL**: `https://localhost:7025` o `http://localhost:5172`\n\n**Autenticación**: JWT Bearer Token\n\n### 📋 Estructura de Respuestas\n\n**Éxito (200/201)**:\n```json\n{\n  \"field1\": \"value\",\n  \"field2\": \"value\"\n}\n```\n\n**Error (400/404/401/403/500)**:\n```json\n{\n  \"title\": \"Error title\",\n  \"status\": 400,\n  \"detail\": \"Detailed error message\",\n  \"instance\": \"/api/v1/endpoint\",\n  \"correlationId\": \"guid\"\n}\n```\n\nO simplemente:\n```json\n{\n  \"error\": \"Error message\"\n}\n```",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49379330",
+		"_collection_link": "https://sonnycyclonepersonal.postman.co/workspace/Team-Workspace~7d21928a-1033-4375-8b48-9669396dd963/collection/49379330-72ba70bc-f06c-4bc6-8856-64ff6c8b315c?action=share&source=collection_link&creator=49379330"
+	},
+	"item": [
+		{
+			"name": "🔐 Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set(\"access_token\", response.accessToken);",
+									"    pm.environment.set(\"refresh_token\", response.refreshToken);",
+									"    pm.environment.set(\"user_id\", response.user.id);",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						},
+						"description": "### ✅ Success Response (200 OK)\n\n```json\n{\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"refreshToken\": \"abc123def456...\",\n  \"expiresAt\": \"2025-01-19T10:00:00Z\",\n  \"user\": {\n    \"id\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n    \"email\": \"john.doe@example.com\",\n    \"role\": \"User\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"isActive\": true\n  }\n}\n```\n\n### ❌ Error Responses\n\n**400 Bad Request** - Email ya existe:\n```json\n{\n  \"error\": \"Email already exists\"\n}\n```\n\n**400 Bad Request** - Validación fallida:\n```json\n{\n  \"title\": \"One or more validation errors occurred.\",\n  \"status\": 400,\n  \"errors\": {\n    \"Password\": [\"Password must be at least 8 characters\"]\n  }\n}\n```\n\n### 🗺️ Campos para mapear en el Frontend\n\n- `accessToken`: Guardar en localStorage/sessionStorage para requests autenticados\n- `refreshToken`: Guardar para renovar el accessToken\n- `expiresAt`: Calcular cuando refrescar el token\n- `user.id`: ID del usuario actual\n- `user.email`: Email del usuario\n- `user.role`: Rol (User, Admin, Manager, Guest)\n- `user.firstName`, `user.lastName`: Nombre completo"
+					},
+					"response": [
+						{
+							"name": "RegisterExample Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"oscarmedina675@gmail.com\",\n  \"password\": \"Oscarjr123*\",\n  \"firstName\": \"Oscar\",\n  \"lastName\": \"Medina\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/auth/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"register"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 18 Oct 2025 23:38:36 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "ab3557b1-eda8-4215-a8d4-b6917a67026a"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhYzJmNjYxMy1jOTNhLTRjYmEtYmQ1MS0wZWNmZTNjODBiN2YiLCJlbWFpbCI6Im9zY2FybWVkaW5hNjc1QGdtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IlVzZXIiLCJqdGkiOiJmZGM1MDMzZC03ZjgzLTQzOWItYTlhNi0xYjdlNzVmMDVhMmMiLCJleHAiOjE3NjA4Mzc5MTYsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0OjcwMjUiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDozMDAwIn0.82rJh5JDXTbxT6RgpkklhPpD2M_U9Nws-UzC9mnQTgE\",\n    \"refreshToken\": \"BtFuWxa0KotTNAKPTbZ6I5bRGEgvkzMXHE1x3UyMOIVrtRVzPgswNHirRLQPjPcyFq0b3z4DYOdswNC+/ofBbQ==\",\n    \"expiresAt\": \"2025-10-25T23:38:36.6241579+00:00\",\n    \"user\": {\n        \"id\": \"ac2f6613-c93a-4cba-bd51-0ecfe3c80b7f\",\n        \"email\": \"oscarmedina675@gmail.com\",\n        \"role\": \"User\",\n        \"firstName\": \"Oscar\",\n        \"lastName\": \"Medina\",\n        \"isActive\": true\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set(\"access_token\", response.accessToken);",
+									"    pm.environment.set(\"refresh_token\", response.refreshToken);",
+									"    pm.environment.set(\"user_id\", response.user.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@planify.local\",\n  \"password\": \"Admin@2025!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						},
+						"description": "### ✅ Success Response (200 OK)\n\n```json\n{\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"refreshToken\": \"abc123def456...\",\n  \"expiresAt\": \"2025-01-19T10:00:00Z\",\n  \"user\": {\n    \"id\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n    \"email\": \"admin@planify.local\",\n    \"role\": \"Admin\",\n    \"firstName\": \"Admin\",\n    \"lastName\": \"User\",\n    \"isActive\": true\n  }\n}\n```\n\n### ❌ Error Responses\n\n**401 Unauthorized** - Credenciales inválidas:\n```json\n{\n  \"error\": \"Invalid credentials\"\n}\n```\n\n**400 Bad Request** - Usuario inactivo:\n```json\n{\n  \"error\": \"User is not active\"\n}\n```\n\n### 🗺️ Campos para mapear\n\n- Guardar `accessToken` en Authorization header: `Bearer {accessToken}`\n- Guardar `refreshToken` para renovar sesión\n- Mostrar `user.firstName` `user.lastName` en UI\n- Verificar `user.role` para mostrar/ocultar features"
+					},
+					"response": [
+						{
+							"name": "Login",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"admin@planify.local\",\n  \"password\": \"Admin@2025!\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/auth/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:25:59 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "2a66e2ac-82dd-455e-9ced-d034c2105d74"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzZDQyOWMzYi0xMjM2LTQxNDAtOTcwOC00ZGI5NTRjYmZiYmMiLCJlbWFpbCI6ImFkbWluQHBsYW5pZnkubG9jYWwiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImp0aSI6IjRiYThkZDE4LWMwZGQtNDQ5Yy05NzUzLWYwNWM4MjBjZDk2YyIsImV4cCI6MTc2MDg0Nzk2MCwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NzAyNSIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjMwMDAifQ.FOVHMKpj5TIkYgnRwGqwbm2nBFuB4g98Pj4qwxeAU_4\",\n    \"refreshToken\": \"RVtzcuY10//rxRx9k3mHQZN6BdA90KwlA08t/xB+o26GqVR4hqMISUTbDxJVoV3Li8lFugJgGBF9I0+8Gj9yvw==\",\n    \"expiresAt\": \"2025-10-26T02:26:00.0004812+00:00\",\n    \"user\": {\n        \"id\": \"3d429c3b-1236-4140-9708-4db954cbfbbc\",\n        \"email\": \"admin@planify.local\",\n        \"role\": \"Admin\",\n        \"firstName\": \"Admin\",\n        \"lastName\": \"User\",\n        \"isActive\": true\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set(\"access_token\", response.accessToken);",
+									"    pm.environment.set(\"refresh_token\", response.refreshToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/refresh",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"refresh"
+							]
+						},
+						"description": "### ✅ Success Response (200 OK)\n\n```json\n{\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"refreshToken\": \"new-refresh-token...\",\n  \"expiresAt\": \"2025-01-19T11:00:00Z\"\n}\n```\n\n### ❌ Error Responses\n\n**401 Unauthorized** - Token inválido o expirado:\n```json\n{\n  \"error\": \"Invalid or expired refresh token\"\n}\n```"
+					},
+					"response": [
+						{
+							"name": "Refresh Token",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/auth/refresh",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"refresh"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:26:31 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "952b204e-d5d6-4860-9f08-994d57a8e19e"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzZDQyOWMzYi0xMjM2LTQxNDAtOTcwOC00ZGI5NTRjYmZiYmMiLCJlbWFpbCI6ImFkbWluQHBsYW5pZnkubG9jYWwiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImp0aSI6ImM1MjEyNWRjLWNhNDUtNDRiYS1hOGE1LTNhYTIyMWEyYTI0YyIsImV4cCI6MTc2MDg0Nzk5MSwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NzAyNSIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjMwMDAifQ.IfjHWFUkdqe5AMRef4JPRB-629HqusgLWEZjFBX-SHg\",\n    \"refreshToken\": \"4mAxT8nK2bZ1JunZxC+PwrQ7hYACKHitnsg8+YzDPVuCQxckunhzi94PkLLtp4C68axb3eZZSxWK9Pc4aDV3oA==\",\n    \"expiresAt\": \"2025-10-26T02:26:31.950934+00:00\",\n    \"user\": {\n        \"id\": \"3d429c3b-1236-4140-9708-4db954cbfbbc\",\n        \"email\": \"admin@planify.local\",\n        \"role\": \"Admin\",\n        \"firstName\": \"Admin\",\n        \"lastName\": \"User\",\n        \"isActive\": true\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/me",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"me"
+							]
+						},
+						"description": "### ✅ Success Response (200 OK)\n\n```json\n{\n  \"id\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"email\": \"admin@planify.local\",\n  \"role\": \"Admin\",\n  \"firstName\": \"Admin\",\n  \"lastName\": \"User\",\n  \"isActive\": true\n}\n```\n\n### ❌ Error Responses\n\n**401 Unauthorized** - Sin token o token inválido:\n```json\n{\n  \"title\": \"Unauthorized\",\n  \"status\": 401\n}\n```"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints de autenticación y gestión de usuarios"
+		},
+		{
+			"name": "📋 Boards",
+			"item": [
+				{
+					"name": "Get All Boards",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/boards",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"boards"
+							]
+						},
+						"description": "### ✅ Success Response (200 OK)\n\n```json\n[\n  {\n    \"id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n    \"name\": \"Demo Board\",\n    \"description\": \"Welcome to Planify!\",\n    \"ownerId\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n    \"createdAt\": \"2025-01-18T10:00:00Z\",\n    \"updatedAt\": null\n  },\n  {\n    \"id\": \"b2c3d4e5-f6a7-8901-bcde-f12345678901\",\n    \"name\": \"My Project\",\n    \"description\": \"Project management\",\n    \"ownerId\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n    \"createdAt\": \"2025-01-18T11:00:00Z\",\n    \"updatedAt\": \"2025-01-18T12:00:00Z\"\n  }\n]\n```\n\n### ❌ Error Responses\n\n**401 Unauthorized**:\n```json\n{\n  \"title\": \"Unauthorized\",\n  \"status\": 401\n}\n```\n\n### 🗺️ Campos para mapear\n\n- `id`: ID del board (usar en navegación y otros requests)\n- `name`: Título del board\n- `description`: Descripción (puede ser null)\n- `createdAt`: Fecha de creación\n- `updatedAt`: Última modificación (puede ser null)"
+					},
+					"response": [
+						{
+							"name": "Get All Boards",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/v1/boards",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"boards"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:27:34 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "d672a193-e74f-427e-a3df-875a75d20f46"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": \"da0eb856-6c37-4a85-a1cf-c65f684e5ba3\",\n        \"name\": \"My New Board\",\n        \"description\": \"Project management board\",\n        \"ownerId\": \"3d429c3b-1236-4140-9708-4db954cbfbbc\",\n        \"createdAt\": \"2025-10-19T02:27:16.2637186+00:00\",\n        \"updatedAt\": null\n    },\n    {\n        \"id\": \"45ae7205-6289-4952-9674-aba816efd5b5\",\n        \"name\": \"Demo Board\",\n        \"description\": \"Welcome to Planify! This is a demo board to get you started.\",\n        \"ownerId\": \"3d429c3b-1236-4140-9708-4db954cbfbbc\",\n        \"createdAt\": \"2025-10-18T23:38:23.5018089+00:00\",\n        \"updatedAt\": null\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Get Board by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.columns && response.columns.length > 0) {",
+									"        pm.environment.set(\"column_id\", response.columns[0].id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/boards/{{board_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"boards",
+								"{{board_id}}"
+							]
+						},
+						"description": "### ✅ Success Response (200 OK)\n\n```json\n{\n  \"id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"name\": \"Demo Board\",\n  \"description\": \"Welcome to Planify!\",\n  \"ownerId\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"createdAt\": \"2025-01-18T10:00:00Z\",\n  \"updatedAt\": null,\n  \"columns\": [\n    {\n      \"id\": \"11111111-1111-1111-1111-111111111111\",\n      \"boardId\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n      \"name\": \"To Do\",\n      \"position\": 1000,\n      \"createdAt\": \"2025-01-18T10:00:00Z\"\n    },\n    {\n      \"id\": \"22222222-2222-2222-2222-222222222222\",\n      \"boardId\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n      \"name\": \"In Progress\",\n      \"position\": 2000,\n      \"createdAt\": \"2025-01-18T10:00:00Z\"\n    },\n    {\n      \"id\": \"33333333-3333-3333-3333-333333333333\",\n      \"boardId\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n      \"name\": \"Done\",\n      \"position\": 3000,\n      \"createdAt\": \"2025-01-18T10:00:00Z\"\n    }\n  ],\n  \"tasks\": [\n    {\n      \"id\": \"task-1111-1111-1111-111111111111\",\n      \"boardId\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n      \"columnId\": \"11111111-1111-1111-1111-111111111111\",\n      \"title\": \"Welcome to Planify!\",\n      \"description\": \"This is your first task\",\n      \"dueAt\": null,\n      \"priority\": \"High\",\n      \"status\": \"Open\",\n      \"assignedUserId\": null,\n      \"tags\": [\"demo\", \"welcome\"],\n      \"position\": 1000,\n      \"createdAt\": \"2025-01-18T10:00:00Z\",\n      \"updatedAt\": null\n    }\n  ]\n}\n```\n\n### ❌ Error Responses\n\n**404 Not Found** - Board no existe:\n```json\n{\n  \"error\": \"Board not found\"\n}\n```\n\n**403 Forbidden** - No tienes acceso:\n```json\n{\n  \"error\": \"Unauthorized\"\n}\n```\n\n### 🗺️ Campos para mapear\n\n**Columns**:\n- `columns[].id`: ID de la columna (necesario para crear tareas)\n- `columns[].name`: Nombre de la columna\n- `columns[].position`: Orden visual\n\n**Tasks**:\n- `tasks[].id`: ID de la tarea\n- `tasks[].columnId`: Columna a la que pertenece\n- `tasks[].title`: Título\n- `tasks[].priority`: Low, Medium, High, Critical\n- `tasks[].status`: Open, InProgress, Completed, Cancelled, OnHold\n- `tasks[].tags`: Array de strings"
+					},
+					"response": [
+						{
+							"name": "Get Board by ID",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/v1/boards/{{board_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"boards",
+										"{{board_id}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:28:03 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "319dab24-6b97-497c-b8d2-1d4104874e43"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"da0eb856-6c37-4a85-a1cf-c65f684e5ba3\",\n    \"name\": \"My New Board\",\n    \"description\": \"Project management board\",\n    \"ownerId\": \"3d429c3b-1236-4140-9708-4db954cbfbbc\",\n    \"createdAt\": \"2025-10-19T02:27:16.2637186+00:00\",\n    \"updatedAt\": null,\n    \"columns\": [\n        {\n            \"id\": \"8e5ca5d2-f4f0-4515-b440-e45912a3c1bd\",\n            \"boardId\": \"da0eb856-6c37-4a85-a1cf-c65f684e5ba3\",\n            \"name\": \"To Do\",\n            \"position\": 1000,\n            \"createdAt\": \"2025-10-19T02:27:16.2708314+00:00\"\n        },\n        {\n            \"id\": \"352636ee-3895-4d21-9415-a9923ef148ea\",\n            \"boardId\": \"da0eb856-6c37-4a85-a1cf-c65f684e5ba3\",\n            \"name\": \"In Progress\",\n            \"position\": 2000,\n            \"createdAt\": \"2025-10-19T02:27:16.2708358+00:00\"\n        },\n        {\n            \"id\": \"751913eb-114e-47d4-810c-53b65046ef05\",\n            \"boardId\": \"da0eb856-6c37-4a85-a1cf-c65f684e5ba3\",\n            \"name\": \"Done\",\n            \"position\": 3000,\n            \"createdAt\": \"2025-10-19T02:27:16.2708363+00:00\"\n        }\n    ],\n    \"tasks\": []\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Board",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set(\"board_id\", response.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"My New Board\",\n  \"description\": \"Project management board\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/boards",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"boards"
+							]
+						},
+						"description": "### ✅ Success Response (201 Created)\n\n```json\n{\n  \"id\": \"new-board-uuid\",\n  \"name\": \"My New Board\",\n  \"description\": \"Project management board\",\n  \"ownerId\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"createdAt\": \"2025-01-18T15:00:00Z\",\n  \"updatedAt\": null\n}\n```\n\n**NOTA IMPORTANTE**: El board se crea automáticamente con 3 columnas:\n- To Do (position: 1000)\n- In Progress (position: 2000)  \n- Done (position: 3000)\n\nPara obtener los IDs de las columnas, haz un GET al board recién creado.\n\n### ❌ Error Responses\n\n**400 Bad Request** - Validación fallida:\n```json\n{\n  \"title\": \"One or more validation errors occurred.\",\n  \"status\": 400,\n  \"errors\": {\n    \"Name\": [\"The Name field is required.\"]\n  }\n}\n```\n\n**401 Unauthorized**:\n```json\n{\n  \"error\": \"User not authenticated\"\n}\n```"
+					},
+					"response": [
+						{
+							"name": "Create Board",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"My New Board\",\n  \"description\": \"Project management board\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/boards",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"boards"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:27:16 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Location",
+									"value": "https://localhost:7025/api/v1/Boards/da0eb856-6c37-4a85-a1cf-c65f684e5ba3"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "22f099a8-d6e7-4246-a117-11dbf02f8074"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"da0eb856-6c37-4a85-a1cf-c65f684e5ba3\",\n    \"name\": \"My New Board\",\n    \"description\": \"Project management board\",\n    \"ownerId\": \"3d429c3b-1236-4140-9708-4db954cbfbbc\",\n    \"createdAt\": \"2025-10-19T02:27:16.2637186+00:00\",\n    \"updatedAt\": null\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Board",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Board Name\",\n  \"description\": \"Updated description\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/boards/{{board_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"boards",
+								"{{board_id}}"
+							]
+						},
+						"description": "### ✅ Success Response (200 OK)\n\n```json\n{\n  \"id\": \"board-uuid\",\n  \"name\": \"Updated Board Name\",\n  \"description\": \"Updated description\",\n  \"ownerId\": \"user-uuid\",\n  \"createdAt\": \"2025-01-18T10:00:00Z\",\n  \"updatedAt\": \"2025-01-18T15:30:00Z\"\n}\n```\n\n### ❌ Error Responses\n\n**404 Not Found**:\n```json\n{\n  \"error\": \"Board not found\"\n}\n```\n\n**403 Forbidden**:\n```json\n{\n  \"error\": \"Unauthorized\"\n}\n```"
+					},
+					"response": [
+						{
+							"name": "Update Board",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Updated Board Name\",\n  \"description\": \"Updated description\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/boards/{{board_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"boards",
+										"{{board_id}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:28:29 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "351de67f-73fc-4fcd-a570-24a6d6b01a54"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"da0eb856-6c37-4a85-a1cf-c65f684e5ba3\",\n    \"name\": \"Updated Board Name\",\n    \"description\": \"Updated description\",\n    \"ownerId\": \"3d429c3b-1236-4140-9708-4db954cbfbbc\",\n    \"createdAt\": \"2025-10-19T02:27:16.2637186+00:00\",\n    \"updatedAt\": \"2025-10-19T02:28:29.7566974+00:00\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete Board",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/boards/{{board_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"boards",
+								"{{board_id}}"
+							]
+						},
+						"description": "### ✅ Success Response (204 No Content)\n\nSin cuerpo de respuesta.\n\n### ❌ Error Responses\n\n**404 Not Found**:\n```json\n{\n  \"error\": \"Board not found\"\n}\n```\n\n**403 Forbidden**:\n```json\n{\n  \"error\": \"Unauthorized\"\n}\n```"
+					},
+					"response": [
+						{
+							"name": "Delete Board",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/v1/boards/{{board_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"boards",
+										"{{board_id}}"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:29:08 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "1e016c68-a5a6-4dbc-aa23-8692ae8b430b"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				}
+			],
+			"description": "Gestión de tableros (Boards)"
+		},
+		{
+			"name": "📂 Columns",
+			"item": [
+				{
+					"name": "Create Column",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"In Review\",\n  \"position\": 2500\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/boards/{{board_id}}/columns",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"boards",
+								"{{board_id}}",
+								"columns"
+							]
+						},
+						"description": "### ✅ Success Response (201 Created)\n\n```json\n{\n  \"id\": \"new-column-uuid\",\n  \"boardId\": \"board-uuid\",\n  \"name\": \"In Review\",\n  \"position\": 2500,\n  \"createdAt\": \"2025-01-18T15:00:00Z\"\n}\n```\n\n### Request Body\n\n- `name` (string, required): Nombre de la columna\n- `position` (int, optional): Posición para ordenamiento. Si no se proporciona, se calcula automáticamente.\n\n**Tip**: Las posiciones se calculan en incrementos de 1000 (1000, 2000, 3000, etc.) para permitir insertar columnas entre otras.\n\n### ❌ Error Responses\n\n**404 Not Found** - Board no existe:\n```json\n{\n  \"error\": \"Board not found\"\n}\n```\n\n**403 Forbidden** - No eres el dueño:\n```json\n{\n  \"error\": \"Unauthorized\"\n}\n```"
+					},
+					"response": [
+						{
+							"name": "Create Column",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"In Review Infra\",\n  \"position\": 2500\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/boards/{{board_id}}/columns",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"boards",
+										"{{board_id}}",
+										"columns"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:29:58 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache,no-store"
+								},
+								{
+									"key": "Expires",
+									"value": "-1"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"title\": \"An error occurred while processing your request\",\n    \"status\": 500,\n    \"detail\": \"The database operation was expected to affect 1 row(s), but actually affected 0 row(s); data may have been modified or deleted since entities were loaded. See https://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.\",\n    \"instance\": \"/api/v1/boards/da0eb856-6c37-4a85-a1cf-c65f684e5ba3/columns\",\n    \"correlationId\": \"c20b9eb4-5d12-4bcc-9428-8c5d640509b1\"\n}"
+						},
+						{
+							"name": "Create Column",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"In Review\",\n  \"position\": 1500\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/boards/{{board_id}}/columns",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"boards",
+										"{{board_id}}",
+										"columns"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:44:17 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Location",
+									"value": "https://localhost:7025/api/v1/Boards/da0eb856-6c37-4a85-a1cf-c65f684e5ba3"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "347d5ec9-7c1a-4c8e-b384-444479c067ba"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"61580398-8f0f-4c37-8808-f613a8428fa4\",\n    \"boardId\": \"da0eb856-6c37-4a85-a1cf-c65f684e5ba3\",\n    \"name\": \"In Review\",\n    \"position\": 1500,\n    \"createdAt\": \"2025-10-19T02:44:17.9484359+00:00\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Column",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Reviewed\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/boards/{{board_id}}/columns/{{column_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"boards",
+								"{{board_id}}",
+								"columns",
+								"{{column_id}}"
+							]
+						},
+						"description": "### ✅ Success Response (200 OK)\n\n```json\n{\n  \"id\": \"column-uuid\",\n  \"boardId\": \"board-uuid\",\n  \"name\": \"Reviewed\",\n  \"position\": 2500,\n  \"createdAt\": \"2025-01-18T15:00:00Z\"\n}\n```\n\n### ❌ Error Responses\n\n**404 Not Found** - Column o Board no existe:\n```json\n{\n  \"error\": \"Column not found\"\n}\n```"
+					},
+					"response": [
+						{
+							"name": "Update Column",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"ToDo\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/boards/{{board_id}}/columns/{{column_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"boards",
+										"{{board_id}}",
+										"columns",
+										"{{column_id}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:34:16 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "09570997-130d-49fa-bd5f-a1b175f5e90b"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"8e5ca5d2-f4f0-4515-b440-e45912a3c1bd\",\n    \"boardId\": \"da0eb856-6c37-4a85-a1cf-c65f684e5ba3\",\n    \"name\": \"ToDo\",\n    \"position\": 1000,\n    \"createdAt\": \"2025-10-19T02:27:16.2708314+00:00\"\n}"
+						},
+						{
+							"name": "Update Column",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"ToDo\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/boards/{{board_id}}/columns/{{column_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"boards",
+										"{{board_id}}",
+										"columns",
+										"{{column_id}}"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/problem+json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:34:30 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "5a54245a-0836-4b35-9f9e-15e69bba2c58"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"type\": \"https://tools.ietf.org/html/rfc9110#section-15.5.1\",\n    \"title\": \"One or more validation errors occurred.\",\n    \"status\": 400,\n    \"errors\": {\n        \"columnId\": [\n            \"The value '8e5ca5d2-f4f0-4515-b440-e45912a3c1' is not valid.\"\n        ]\n    },\n    \"traceId\": \"00-c829795cdd6480cac0f46f8be0e8c6b6-4e9ecee1523cd891-00\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Reorder Column",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"newPosition\": 1500\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/boards/{{board_id}}/columns/{{column_id}}/reorder",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"boards",
+								"{{board_id}}",
+								"columns",
+								"{{column_id}}",
+								"reorder"
+							]
+						},
+						"description": "### ✅ Success Response (200 OK)\n\n```json\n{\n  \"id\": \"column-uuid\",\n  \"boardId\": \"board-uuid\",\n  \"name\": \"In Review\",\n  \"position\": 1500,\n  \"createdAt\": \"2025-01-18T15:00:00Z\"\n}\n```\n\n### Lógica de Posiciones\n\nPara mover una columna entre dos existentes:\n\n1. **Columnas actuales**:\n   - To Do: position 1000\n   - Done: position 3000\n\n2. **Para insertar \"In Progress\" entre ambas**:\n   - Calcular: (1000 + 3000) / 2 = 2000\n   - Asignar position: 2000\n\n3. **Resultado**:\n   - To Do: 1000\n   - In Progress: 2000 ← Nueva columna\n   - Done: 3000"
+					},
+					"response": [
+						{
+							"name": "Reorder Column",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"newPosition\": 1500\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/boards/{{board_id}}/columns/{{column_id}}/reorder",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"boards",
+										"{{board_id}}",
+										"columns",
+										"{{column_id}}",
+										"reorder"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/problem+json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:34:52 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "e8dbd170-82f5-41e4-92f4-c3c557e1a741"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"type\": \"https://tools.ietf.org/html/rfc9110#section-15.5.1\",\n    \"title\": \"One or more validation errors occurred.\",\n    \"status\": 400,\n    \"errors\": {\n        \"columnId\": [\n            \"The value '8e5ca5d2-f4f0-4515-b440-e45912a3c1' is not valid.\"\n        ]\n    },\n    \"traceId\": \"00-ec2769897f76d7476f0f045c0fa0ee8d-a0f0efe74f645bc2-00\"\n}"
+						},
+						{
+							"name": "Reorder Column",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"newPosition\": 1500\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/boards/{{board_id}}/columns/{{column_id}}/reorder",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"boards",
+										"{{board_id}}",
+										"columns",
+										"{{column_id}}",
+										"reorder"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:35:57 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "675610b5-9117-4e38-b896-6a58f9b96e18"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"8e5ca5d2-f4f0-4515-b440-e45912a3c1bd\",\n    \"boardId\": \"da0eb856-6c37-4a85-a1cf-c65f684e5ba3\",\n    \"name\": \"ToDo\",\n    \"position\": 1500,\n    \"createdAt\": \"2025-10-19T02:27:16.2708314+00:00\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete Column",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/boards/{{board_id}}/columns/{{column_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"boards",
+								"{{board_id}}",
+								"columns",
+								"{{column_id}}"
+							]
+						},
+						"description": "### ✅ Success Response (204 No Content)\n\nSin cuerpo de respuesta.\n\n### ❌ Error Responses\n\n**400 Bad Request** - Columna tiene tareas:\n```json\n{\n  \"error\": \"Cannot delete column with tasks. Move or delete tasks first.\"\n}\n```\n\n**404 Not Found**:\n```json\n{\n  \"error\": \"Column not found\"\n}\n```\n\n**IMPORTANTE**: No puedes eliminar una columna que contiene tareas. Primero debes mover o eliminar las tareas."
+					},
+					"response": []
+				}
+			],
+			"description": "Gestión de columnas dentro de un board"
+		},
+		{
+			"name": "✅ Tasks",
+			"item": [
+				{
+					"name": "Get All Tasks",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/boards/{{board_id}}/tasks?page=1&pageSize=20&search=&tag=&status=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"boards",
+								"{{board_id}}",
+								"tasks"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Número de página (default: 1)"
+								},
+								{
+									"key": "pageSize",
+									"value": "20",
+									"description": "Tamaño de página (default: 20)"
+								},
+								{
+									"key": "search",
+									"value": "",
+									"description": "Buscar en título/descripción"
+								},
+								{
+									"key": "tag",
+									"value": "",
+									"description": "Filtrar por etiqueta"
+								},
+								{
+									"key": "status",
+									"value": "",
+									"description": "Open, InProgress, Completed, Cancelled, OnHold"
+								},
+								{
+									"key": "assignedUserId",
+									"value": "",
+									"description": "ID del usuario asignado",
+									"disabled": true
+								},
+								{
+									"key": "from",
+									"value": "",
+									"description": "Fecha desde (ISO 8601)",
+									"disabled": true
+								},
+								{
+									"key": "to",
+									"value": "",
+									"description": "Fecha hasta (ISO 8601)",
+									"disabled": true
+								}
+							]
+						},
+						"description": "### ✅ Success Response (200 OK)\n\n```json\n{\n  \"items\": [\n    {\n      \"id\": \"task-uuid\",\n      \"boardId\": \"board-uuid\",\n      \"columnId\": \"column-uuid\",\n      \"title\": \"Implement JWT Auth\",\n      \"description\": \"Configure JWT authentication\",\n      \"dueAt\": \"2025-02-01T00:00:00Z\",\n      \"priority\": \"High\",\n      \"status\": \"InProgress\",\n      \"assignedUserId\": \"user-uuid\",\n      \"tags\": [\"backend\", \"security\"],\n      \"position\": 1000,\n      \"createdAt\": \"2025-01-18T10:00:00Z\",\n      \"updatedAt\": \"2025-01-18T11:00:00Z\"\n    }\n  ],\n  \"totalCount\": 1,\n  \"page\": 1,\n  \"pageSize\": 20\n}\n```\n\n### Query Parameters\n\nTodos opcionales:\n- `page`: Número de página (default: 1)\n- `pageSize`: Items por página (default: 20)\n- `search`: Texto a buscar en título/descripción\n- `tag`: Filtrar por etiqueta específica\n- `assignedUserId`: Filtrar por usuario asignado\n- `status`: Open | InProgress | Completed | Cancelled | OnHold\n- `from`: Fecha inicio (ISO 8601: `2025-01-01T00:00:00Z`)\n- `to`: Fecha fin (ISO 8601: `2025-12-31T23:59:59Z`)\n\n### 🗺️ Mapeo para Paginación\n\n- `items`: Array de tareas\n- `totalCount`: Total de tareas (para calcular páginas)\n- `page`: Página actual\n- `pageSize`: Tamaño de página\n\n**Calcular total de páginas**:\n```javascript\nconst totalPages = Math.ceil(totalCount / pageSize);\n```"
+					},
+					"response": [
+						{
+							"name": "Get All Tasks",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/v1/boards/{{board_id}}/tasks?page=1&pageSize=20&search=&tag=&status=",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"boards",
+										"{{board_id}}",
+										"tasks"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1",
+											"description": "Número de página (default: 1)"
+										},
+										{
+											"key": "pageSize",
+											"value": "20",
+											"description": "Tamaño de página (default: 20)"
+										},
+										{
+											"key": "search",
+											"value": "",
+											"description": "Buscar en título/descripción"
+										},
+										{
+											"key": "tag",
+											"value": "",
+											"description": "Filtrar por etiqueta"
+										},
+										{
+											"key": "status",
+											"value": "",
+											"description": "Open, InProgress, Completed, Cancelled, OnHold"
+										},
+										{
+											"key": "assignedUserId",
+											"value": "",
+											"description": "ID del usuario asignado",
+											"disabled": true
+										},
+										{
+											"key": "from",
+											"value": "",
+											"description": "Fecha desde (ISO 8601)",
+											"disabled": true
+										},
+										{
+											"key": "to",
+											"value": "",
+											"description": "Fecha hasta (ISO 8601)",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:36:17 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "b1c2da2c-d10f-4093-a00e-1f4d87bbb5b5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"items\": [],\n    \"totalCount\": 0,\n    \"page\": 1,\n    \"pageSize\": 20,\n    \"totalPages\": 0,\n    \"hasPrevious\": false,\n    \"hasNext\": false\n}"
+						},
+						{
+							"name": "Get All Tasks",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/v1/boards/{{board_id}}/tasks?page=1&pageSize=20&search=&tag=&status=",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"boards",
+										"{{board_id}}",
+										"tasks"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1",
+											"description": "Número de página (default: 1)"
+										},
+										{
+											"key": "pageSize",
+											"value": "20",
+											"description": "Tamaño de página (default: 20)"
+										},
+										{
+											"key": "search",
+											"value": "",
+											"description": "Buscar en título/descripción"
+										},
+										{
+											"key": "tag",
+											"value": "",
+											"description": "Filtrar por etiqueta"
+										},
+										{
+											"key": "status",
+											"value": "",
+											"description": "Open, InProgress, Completed, Cancelled, OnHold"
+										},
+										{
+											"key": "assignedUserId",
+											"value": "",
+											"description": "ID del usuario asignado",
+											"disabled": true
+										},
+										{
+											"key": "from",
+											"value": "",
+											"description": "Fecha desde (ISO 8601)",
+											"disabled": true
+										},
+										{
+											"key": "to",
+											"value": "",
+											"description": "Fecha hasta (ISO 8601)",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/problem+json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:46:21 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "6f753868-91d8-4a41-b897-d464cd2f2530"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"type\": \"https://tools.ietf.org/html/rfc9110#section-15.5.1\",\n    \"title\": \"One or more validation errors occurred.\",\n    \"status\": 400,\n    \"errors\": {\n        \"boardId\": [\n            \"The value 'a0eb856-6c37-4a85-a1cf-c65f684e5ba3' is not valid.\"\n        ]\n    },\n    \"traceId\": \"00-de2adb1bcabba97af541c15afbd27b2b-60cdcf16d921da85-00\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Task",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"columnId\": \"{{column_id}}\",\n  \"title\": \"Implement JWT Authentication\",\n  \"description\": \"Configure JWT tokens with refresh token rotation\",\n  \"priority\": \"High\",\n  \"dueAt\": \"2025-02-01T00:00:00Z\",\n  \"assignedUserId\": null,\n  \"tags\": [\"backend\", \"security\", \"urgent\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/boards/{{board_id}}/tasks",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"boards",
+								"{{board_id}}",
+								"tasks"
+							]
+						},
+						"description": "### ✅ Success Response (201 Created)\n\n```json\n{\n  \"id\": \"new-task-uuid\",\n  \"boardId\": \"board-uuid\",\n  \"columnId\": \"column-uuid\",\n  \"title\": \"Implement JWT Authentication\",\n  \"description\": \"Configure JWT tokens with refresh token rotation\",\n  \"dueAt\": \"2025-02-01T00:00:00Z\",\n  \"priority\": \"High\",\n  \"status\": \"Open\",\n  \"assignedUserId\": null,\n  \"tags\": [\"backend\", \"security\", \"urgent\"],\n  \"position\": 10000,\n  \"createdAt\": \"2025-01-18T15:30:00Z\",\n  \"updatedAt\": null\n}\n```\n\n### Request Body\n\n**Campos requeridos**:\n- `columnId` (guid): ID de la columna (obtener de GET board)\n- `title` (string): Título de la tarea\n\n**Campos opcionales**:\n- `description` (string): Descripción detallada\n- `priority` (string): \"Low\", \"Medium\", \"High\", \"Critical\" (default: \"Medium\")\n- `dueAt` (datetime): Fecha de vencimiento (ISO 8601)\n- `assignedUserId` (guid): ID del usuario asignado\n- `tags` (string[]): Array de etiquetas\n\n### ❌ Error Responses\n\n**400 Bad Request** - Validación:\n```json\n{\n  \"title\": \"One or more validation errors occurred.\",\n  \"status\": 400,\n  \"errors\": {\n    \"ColumnId\": [\"The ColumnId field is required.\"],\n    \"Title\": [\"The Title field is required.\"]\n  }\n}\n```\n\n**404 Not Found** - Board o Column no existe:\n```json\n{\n  \"error\": \"Board not found\"\n}\n```\n\n**404 Not Found** - Column no pertenece al Board:\n```json\n{\n  \"error\": \"Column not found in board\"\n}\n```"
+					},
+					"response": [
+						{
+							"name": "Create Task",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"columnId\": \"{{column_id}}\",\n  \"title\": \"Implement JWT Authentication\",\n  \"description\": \"Configure JWT tokens with refresh token rotation\",\n  \"priority\": \"High\",\n  \"dueAt\": \"2025-02-01T00:00:00Z\",\n  \"assignedUserId\": null,\n  \"tags\": [\"backend\", \"security\", \"urgent\"]\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/boards/{{board_id}}/tasks",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"boards",
+										"{{board_id}}",
+										"tasks"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:44:44 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Location",
+									"value": "https://localhost:7025/api/v1/boards/da0eb856-6c37-4a85-a1cf-c65f684e5ba3/Tasks"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "2f261a72-2125-4383-ab96-12e969e5cfc8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"3bceaed8-9ee8-4a96-88b3-fd514e46323e\",\n    \"boardId\": \"da0eb856-6c37-4a85-a1cf-c65f684e5ba3\",\n    \"columnId\": \"352636ee-3895-4d21-9415-a9923ef148ea\",\n    \"title\": \"Implement JWT Authentication\",\n    \"description\": \"Configure JWT tokens with refresh token rotation\",\n    \"dueAt\": \"2025-02-01T00:00:00+00:00\",\n    \"priority\": \"High\",\n    \"status\": \"Open\",\n    \"assignedUserId\": null,\n    \"tags\": [\n        \"backend\",\n        \"security\",\n        \"urgent\"\n    ],\n    \"position\": 10000,\n    \"createdAt\": \"2025-10-19T02:44:44.5747637+00:00\",\n    \"updatedAt\": null\n}"
+						},
+						{
+							"name": "Create Task",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"columnId\": \"{{column_id}}\",\n  \"title\": \"Implement JWT Authentication\",\n  \"description\": \"Configure JWT tokens with refresh token rotation\",\n  \"priority\": \"High\",\n  \"dueAt\": \"2025-02-01T00:00:00Z\",\n  \"assignedUserId\": null,\n  \"tags\": [\"backend\", \"security\", \"urgent\"]\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/boards/{{board_id}}/tasks",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"boards",
+										"{{board_id}}",
+										"tasks"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/problem+json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:45:08 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "e8e61eee-785a-48d2-bbe5-36fa6d3437b9"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"type\": \"https://tools.ietf.org/html/rfc9110#section-15.5.1\",\n    \"title\": \"One or more validation errors occurred.\",\n    \"status\": 400,\n    \"errors\": {\n        \"request\": [\n            \"The request field is required.\"\n        ],\n        \"$.columnId\": [\n            \"The JSON value could not be converted to Planify.Application.Features.Tasks.DTOs.CreateTaskRequest. Path: $.columnId | LineNumber: 1 | BytePositionInLine: 51.\"\n        ]\n    },\n    \"traceId\": \"00-e84fcb39cbf4fd632095450a32b52ddf-750dcd6685db03b2-00\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Task",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"JWT Authentication ✅\",\n  \"description\": \"Completed JWT implementation\",\n  \"priority\": \"Medium\",\n  \"dueAt\": \"2025-02-01T00:00:00Z\",\n  \"assignedUserId\": \"{{user_id}}\",\n  \"tags\": [\"backend\", \"security\", \"completed\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/boards/{{board_id}}/tasks/{{task_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"boards",
+								"{{board_id}}",
+								"tasks",
+								"{{task_id}}"
+							]
+						},
+						"description": "### ✅ Success Response (200 OK)\n\n```json\n{\n  \"id\": \"task-uuid\",\n  \"boardId\": \"board-uuid\",\n  \"columnId\": \"column-uuid\",\n  \"title\": \"JWT Authentication ✅\",\n  \"description\": \"Completed JWT implementation\",\n  \"dueAt\": \"2025-02-01T00:00:00Z\",\n  \"priority\": \"Medium\",\n  \"status\": \"Open\",\n  \"assignedUserId\": \"user-uuid\",\n  \"tags\": [\"backend\", \"security\", \"completed\"],\n  \"position\": 10000,\n  \"createdAt\": \"2025-01-18T15:30:00Z\",\n  \"updatedAt\": \"2025-01-18T16:15:00Z\"\n}\n```\n\n**NOTA**: Este endpoint NO cambia la columna (columnId). Para mover una tarea a otra columna, usa el endpoint PATCH /tasks/{taskId}/move"
+					},
+					"response": [
+						{
+							"name": "Update Task",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"title\": \"JWT Authentication ✅\",\n  \"description\": \"Completed JWT implementation\",\n  \"priority\": \"Medium\",\n  \"dueAt\": \"2025-02-01T00:00:00Z\",\n  \"assignedUserId\": \"{{user_id}}\",\n  \"tags\": [\"backend\", \"security\", \"completed\"]\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/boards/{{board_id}}/tasks/{{task_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"boards",
+										"{{board_id}}",
+										"tasks",
+										"{{task_id}}"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/problem+json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:47:49 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "d966a5ba-b6df-4282-9d5e-53a69894997a"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"type\": \"https://tools.ietf.org/html/rfc9110#section-15.5.1\",\n    \"title\": \"One or more validation errors occurred.\",\n    \"status\": 400,\n    \"errors\": {\n        \"request\": [\n            \"The request field is required.\"\n        ],\n        \"$.assignedUserId\": [\n            \"The JSON value could not be converted to Planify.Application.Features.Tasks.DTOs.UpdateTaskRequest. Path: $.assignedUserId | LineNumber: 5 | BytePositionInLine: 22.\"\n        ]\n    },\n    \"traceId\": \"00-0bcd8b1bfbd7af20a9f340092b044a35-20383b4233b675ea-00\"\n}"
+						},
+						{
+							"name": "Update Task",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"title\": \"JWT Authentication ✅\",\n  \"description\": \"Completed JWT implementation\",\n  \"priority\": \"Medium\",\n  \"dueAt\": \"2025-02-01T00:00:00Z\",\n  \"assignedUserId\": \"{{user_id}}\",\n  \"tags\": [\"backend\", \"security\", \"completed\"]\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/boards/{{board_id}}/tasks/{{task_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"boards",
+										"{{board_id}}",
+										"tasks",
+										"{{task_id}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:48:45 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "201147a9-21d6-4bbb-9910-36354f68c72b"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"357e76a3-ce2e-4949-8f1f-d15458ab16e9\",\n    \"boardId\": \"da0eb856-6c37-4a85-a1cf-c65f684e5ba3\",\n    \"columnId\": \"352636ee-3895-4d21-9415-a9923ef148ea\",\n    \"title\": \"JWT Authentication ✅\",\n    \"description\": \"Completed JWT implementation\",\n    \"dueAt\": \"2025-02-01T00:00:00+00:00\",\n    \"priority\": \"Medium\",\n    \"status\": \"Open\",\n    \"assignedUserId\": \"3d429c3b-1236-4140-9708-4db954cbfbbc\",\n    \"tags\": [\n        \"backend\",\n        \"security\",\n        \"completed\"\n    ],\n    \"position\": 10000,\n    \"createdAt\": \"2025-10-19T02:47:36.0652871+00:00\",\n    \"updatedAt\": \"2025-10-19T02:48:46.5211139+00:00\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Move Task to Column",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"columnId\": \"{{column_id}}\",\n  \"position\": 1000\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/boards/{{board_id}}/tasks/{{task_id}}/move",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"boards",
+								"{{board_id}}",
+								"tasks",
+								"{{task_id}}",
+								"move"
+							]
+						},
+						"description": "### ✅ Success Response (200 OK)\n\n```json\n{\n  \"id\": \"task-uuid\",\n  \"boardId\": \"board-uuid\",\n  \"columnId\": \"new-column-uuid\",\n  \"title\": \"JWT Authentication\",\n  \"description\": \"...\",\n  \"dueAt\": \"2025-02-01T00:00:00Z\",\n  \"priority\": \"High\",\n  \"status\": \"InProgress\",\n  \"assignedUserId\": null,\n  \"tags\": [\"backend\"],\n  \"position\": 1000,\n  \"createdAt\": \"2025-01-18T15:30:00Z\",\n  \"updatedAt\": \"2025-01-18T16:00:00Z\"\n}\n```\n\n### Request Body\n\n- `columnId` (guid, required): ID de la columna destino\n- `position` (int, required): Nueva posición en la columna\n\n### 🗺️ Uso en Drag & Drop\n\nCuando el usuario arrastra una tarea a otra columna:\n\n1. **Obtener columnId de destino**\n2. **Calcular position**:\n   - Si se suelta al inicio: `position = firstTask.position - 1000`\n   - Si se suelta al final: `position = lastTask.position + 1000`\n   - Si se suelta entre tareas: `position = (prevTask.position + nextTask.position) / 2`\n\n3. **Llamar al endpoint** con columnId y position\n\n### ❌ Error Responses\n\n**404 Not Found** - Task, Board o Column no existe\n**403 Forbidden** - No autorizado"
+					},
+					"response": [
+						{
+							"name": "Move Task to Column",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"columnId\": \"{{column_id}}\",\n  \"position\": 1000\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/boards/{{board_id}}/tasks/{{task_id}}/move",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"boards",
+										"{{board_id}}",
+										"tasks",
+										"{{task_id}}",
+										"move"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:49:03 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "5c06eba8-6bf2-4942-a004-678b0cf5eb2b"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"357e76a3-ce2e-4949-8f1f-d15458ab16e9\",\n    \"boardId\": \"da0eb856-6c37-4a85-a1cf-c65f684e5ba3\",\n    \"columnId\": \"352636ee-3895-4d21-9415-a9923ef148ea\",\n    \"title\": \"JWT Authentication ✅\",\n    \"description\": \"Completed JWT implementation\",\n    \"dueAt\": \"2025-02-01T00:00:00+00:00\",\n    \"priority\": \"Medium\",\n    \"status\": \"Open\",\n    \"assignedUserId\": \"3d429c3b-1236-4140-9708-4db954cbfbbc\",\n    \"tags\": [\n        \"backend\",\n        \"security\",\n        \"completed\"\n    ],\n    \"position\": 1000,\n    \"createdAt\": \"2025-10-19T02:47:36.0652871+00:00\",\n    \"updatedAt\": \"2025-10-19T02:49:04.4363922+00:00\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete Task",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/boards/{{board_id}}/tasks/{{task_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"boards",
+								"{{board_id}}",
+								"tasks",
+								"{{task_id}}"
+							]
+						},
+						"description": "### ✅ Success Response (204 No Content)\n\nSin cuerpo de respuesta.\n\n### ❌ Error Responses\n\n**404 Not Found**:\n```json\n{\n  \"error\": \"Task not found\"\n}\n```"
+					},
+					"response": [
+						{
+							"name": "Delete Task",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/v1/boards/{{board_id}}/tasks/{{task_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"boards",
+										"{{board_id}}",
+										"tasks",
+										"{{task_id}}"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:49:25 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "86791bbe-bf46-4f2e-a5b4-f018a8d04721"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				}
+			],
+			"description": "Gestión de tareas dentro de un board"
+		},
+		{
+			"name": "📝 Notes",
+			"item": [
+				{
+					"name": "Get All Notes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/notes",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notes"
+							]
+						},
+						"description": "### ✅ Success Response (200 OK)\n\n```json\n[\n  {\n    \"id\": \"note-uuid\",\n    \"userId\": \"user-uuid\",\n    \"title\": \"Meeting Notes\",\n    \"content\": \"## Action Items\\n- Follow up with client\\n- Update documentation\",\n    \"tags\": [\"meeting\", \"important\"],\n    \"createdAt\": \"2025-01-18T10:00:00Z\",\n    \"updatedAt\": \"2025-01-18T11:00:00Z\"\n  }\n]\n```\n\n### 🗺️ Campos para mapear\n\n- `id`: ID de la nota\n- `title`: Título\n- `content`: Contenido (puede incluir Markdown)\n- `tags`: Array de etiquetas\n- `createdAt`, `updatedAt`: Timestamps"
+					},
+					"response": [
+						{
+							"name": "Get All Notes",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/v1/notes",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"notes"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:51:06 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "4ebbb99b-4ac7-4ff3-afc8-1742fa157cd0"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": \"0b9dc73c-fe0e-4272-adb7-3123ef34b979\",\n        \"ownerId\": \"3d429c3b-1236-4140-9708-4db954cbfbbc\",\n        \"title\": \"Sprint Planning Notes 2 2 2 2\",\n        \"content\": \"## Objectives\\n- Complete user authentication\\n- Implement board management\\n\\n## Timeline\\n- Week 1: Backend\\n- Week 2: Frontend\",\n        \"createdAt\": \"2025-10-19T02:50:49.6553223+00:00\",\n        \"updatedAt\": null\n    },\n    {\n        \"id\": \"e2388903-52dd-4349-bfe8-49b7525a1e1d\",\n        \"ownerId\": \"3d429c3b-1236-4140-9708-4db954cbfbbc\",\n        \"title\": \"Sprint Planning Notes\",\n        \"content\": \"## Objectives\\n- Complete user authentication\\n- Implement board management\\n\\n## Timeline\\n- Week 1: Backend\\n- Week 2: Frontend\",\n        \"createdAt\": \"2025-10-19T02:50:41.3032866+00:00\",\n        \"updatedAt\": null\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Get Note by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/notes/{{note_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notes",
+								"{{note_id}}"
+							]
+						},
+						"description": "### ✅ Success Response (200 OK)\n\n```json\n{\n  \"id\": \"note-uuid\",\n  \"userId\": \"user-uuid\",\n  \"title\": \"Meeting Notes\",\n  \"content\": \"## Action Items\\n- Follow up with client\\n- Update documentation\",\n  \"tags\": [\"meeting\", \"important\"],\n  \"createdAt\": \"2025-01-18T10:00:00Z\",\n  \"updatedAt\": \"2025-01-18T11:00:00Z\"\n}\n```\n\n### ❌ Error Responses\n\n**404 Not Found**:\n```json\n{\n  \"error\": \"Note not found\"\n}\n```"
+					},
+					"response": [
+						{
+							"name": "Get Note by ID",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/v1/notes/{{note_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"notes",
+										"{{note_id}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:51:31 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "9825b550-d773-483a-ab3b-d4e244bb03f7"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"0b9dc73c-fe0e-4272-adb7-3123ef34b979\",\n    \"ownerId\": \"3d429c3b-1236-4140-9708-4db954cbfbbc\",\n    \"title\": \"Sprint Planning Notes 2 2 2 2\",\n    \"content\": \"## Objectives\\n- Complete user authentication\\n- Implement board management\\n\\n## Timeline\\n- Week 1: Backend\\n- Week 2: Frontend\",\n    \"createdAt\": \"2025-10-19T02:50:49.6553223+00:00\",\n    \"updatedAt\": null\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Note",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Sprint Planning Notes\",\n  \"content\": \"## Objectives\\n- Complete user authentication\\n- Implement board management\\n\\n## Timeline\\n- Week 1: Backend\\n- Week 2: Frontend\",\n  \"tags\": [\"sprint\", \"planning\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/notes",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notes"
+							]
+						},
+						"description": "### ✅ Success Response (201 Created)\n\n```json\n{\n  \"id\": \"new-note-uuid\",\n  \"userId\": \"user-uuid\",\n  \"title\": \"Sprint Planning Notes\",\n  \"content\": \"## Objectives\\n...\",\n  \"tags\": [\"sprint\", \"planning\"],\n  \"createdAt\": \"2025-01-18T15:00:00Z\",\n  \"updatedAt\": null\n}\n```\n\n### Request Body\n\n**Campos requeridos**:\n- `title` (string): Título de la nota\n- `content` (string): Contenido (soporta Markdown)\n\n**Campos opcionales**:\n- `tags` (string[]): Array de etiquetas"
+					},
+					"response": [
+						{
+							"name": "Create Note",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"title\": \"Sprint Planning Notes 2 2 2 2\",\n  \"content\": \"## Objectives\\n- Complete user authentication\\n- Implement board management\\n\\n## Timeline\\n- Week 1: Backend\\n- Week 2: Frontend\",\n  \"tags\": [\"sprint\", \"planning\"]\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/notes",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"notes"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:50:48 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Location",
+									"value": "https://localhost:7025/api/v1/Notes/0b9dc73c-fe0e-4272-adb7-3123ef34b979"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "803f9378-693d-46b2-8088-a3f8cab92312"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"0b9dc73c-fe0e-4272-adb7-3123ef34b979\",\n    \"ownerId\": \"3d429c3b-1236-4140-9708-4db954cbfbbc\",\n    \"title\": \"Sprint Planning Notes 2 2 2 2\",\n    \"content\": \"## Objectives\\n- Complete user authentication\\n- Implement board management\\n\\n## Timeline\\n- Week 1: Backend\\n- Week 2: Frontend\",\n    \"createdAt\": \"2025-10-19T02:50:49.6553223+00:00\",\n    \"updatedAt\": null\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Note",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Sprint Planning Notes - Updated\",\n  \"content\": \"## Updated content\\n...\",\n  \"tags\": [\"sprint\", \"planning\", \"reviewed\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/notes/{{note_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notes",
+								"{{note_id}}"
+							]
+						},
+						"description": "### ✅ Success Response (200 OK)\n\n```json\n{\n  \"id\": \"note-uuid\",\n  \"userId\": \"user-uuid\",\n  \"title\": \"Sprint Planning Notes - Updated\",\n  \"content\": \"## Updated content...\",\n  \"tags\": [\"sprint\", \"planning\", \"reviewed\"],\n  \"createdAt\": \"2025-01-18T15:00:00Z\",\n  \"updatedAt\": \"2025-01-18T16:00:00Z\"\n}\n```"
+					},
+					"response": [
+						{
+							"name": "Update Note",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"title\": \"Sprint Planning Notes - Updated\",\n  \"content\": \"## Updated content\\n...\",\n  \"tags\": [\"sprint\", \"planning\", \"reviewed\"]\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/notes/{{note_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"notes",
+										"{{note_id}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:51:58 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "80455b6e-93bc-4d25-83bf-de32c0d7aa06"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"0b9dc73c-fe0e-4272-adb7-3123ef34b979\",\n    \"ownerId\": \"3d429c3b-1236-4140-9708-4db954cbfbbc\",\n    \"title\": \"Sprint Planning Notes - Updated\",\n    \"content\": \"## Updated content\\n...\",\n    \"createdAt\": \"2025-10-19T02:50:49.6553223+00:00\",\n    \"updatedAt\": \"2025-10-19T02:51:59.3650136+00:00\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete Note",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/notes/{{note_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notes",
+								"{{note_id}}"
+							]
+						},
+						"description": "### ✅ Success Response (204 No Content)\n\nSin cuerpo de respuesta."
+					},
+					"response": [
+						{
+							"name": "Delete Note",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/v1/notes/{{note_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"notes",
+										"{{note_id}}"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:56:48 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "d3bc89a7-1d7b-4db9-b266-9528a075f0c5"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "Convert Note to Task",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"boardId\": \"{{board_id}}\",\n  \"columnId\": \"{{column_id}}\",\n  \"priority\": \"Medium\",\n  \"dueAt\": \"2025-02-15T00:00:00Z\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/notes/{{note_id}}/convert-to-task",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notes",
+								"{{note_id}}",
+								"convert-to-task"
+							]
+						},
+						"description": "### ✅ Success Response (200 OK)\n\n```json\n{\n  \"id\": \"new-task-uuid\",\n  \"boardId\": \"board-uuid\",\n  \"columnId\": \"column-uuid\",\n  \"title\": \"Sprint Planning Notes\",\n  \"description\": \"## Objectives\\n- Complete user authentication\\n- Implement board management\",\n  \"dueAt\": \"2025-02-15T00:00:00Z\",\n  \"priority\": \"Medium\",\n  \"status\": \"Open\",\n  \"assignedUserId\": null,\n  \"tags\": [\"sprint\", \"planning\"],\n  \"position\": 10000,\n  \"createdAt\": \"2025-01-18T16:00:00Z\",\n  \"updatedAt\": null\n}\n```\n\n### Request Body\n\n**Campos requeridos**:\n- `boardId` (guid): ID del board destino\n- `columnId` (guid): ID de la columna destino\n\n**Campos opcionales**:\n- `priority` (string): Low, Medium, High, Critical\n- `dueAt` (datetime): Fecha de vencimiento\n\n**Nota**: El título y contenido de la nota se convierten en título y descripción de la tarea. Las etiquetas se preservan."
+					},
+					"response": [
+						{
+							"name": "Convert Note to Task",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"boardId\": \"{{board_id}}\",\n  \"columnId\": \"{{column_id}}\",\n  \"priority\": \"Medium\",\n  \"dueAt\": \"2025-02-15T00:00:00Z\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/notes/{{note_id}}/convert-to-task",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"notes",
+										"{{note_id}}",
+										"convert-to-task"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:56:25 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "77618ea4-fd40-484e-b083-292b43fe758b"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"taskId\": \"50c8578c-75e5-47a8-b137-6ee98ddd845f\"\n}"
+						}
+					]
+				}
+			],
+			"description": "Gestión de notas personales"
+		},
+		{
+			"name": "❤️ Health Checks",
+			"item": [
+				{
+					"name": "Health Ready",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health/ready",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health",
+								"ready"
+							]
+						},
+						"description": "### ✅ Success Response (200 OK)\n\n```json\n{\n  \"status\": \"Healthy\"\n}\n```\n\n**Uso**: Verificar que la aplicación está lista (BD conectada)\n\n### ❌ Error Response (503 Service Unavailable)\n\n```json\n{\n  \"status\": \"Unhealthy\",\n  \"error\": \"Database connection failed\"\n}\n```"
+					},
+					"response": [
+						{
+							"name": "Health Ready",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/health/ready",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"health",
+										"ready"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:49:42 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-store, no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "Thu, 01 Jan 1970 00:00:00 GMT"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "38862717-67d5-4b0f-b037-c01e9a5fc0e2"
+								}
+							],
+							"cookie": [],
+							"body": "Healthy"
+						}
+					]
+				},
+				{
+					"name": "Health Live",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health/live",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health",
+								"live"
+							]
+						},
+						"description": "### ✅ Success Response (200 OK)\n\n```json\n{\n  \"status\": \"Healthy\"\n}\n```\n\n**Uso**: Verificar que la aplicación está corriendo"
+					},
+					"response": [
+						{
+							"name": "Health Live",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/health/live",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"health",
+										"live"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Oct 2025 02:50:03 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-store, no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "Thu, 01 Jan 1970 00:00:00 GMT"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "no-referrer"
+								},
+								{
+									"key": "X-Correlation-Id",
+									"value": "33f7c695-baea-4e38-85b3-5368d8325057"
+								}
+							],
+							"cookie": [],
+							"body": "Healthy"
+						}
+					]
+				}
+			],
+			"description": "Health checks para monitoreo"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://localhost:7025",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "board_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "column_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "task_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "note_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
